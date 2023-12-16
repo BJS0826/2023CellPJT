@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "245063836374",
+    "project_id": "ndproject-743d6",
+    "storage_bucket": "ndproject-743d6.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:245063836374:android:3e2199b33d2307f5fa5f77",
+        "android_client_info": {
+          "package_name": "com.example.cellpjt"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBFGiCR8o2W1ZpxRDGUYFCLn5gSo2FagpI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
