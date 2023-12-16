@@ -1,4 +1,5 @@
 import 'package:cellpjt/func1/signup.dart';
+import 'package:cellpjt/bottomnav/mainfeed.dart';
 import 'package:flutter/material.dart';
 
 class LoginPage extends StatelessWidget {
@@ -112,7 +113,13 @@ class LoginPage extends StatelessWidget {
                           ),
                           onPrimary: Colors.white, // 텍스트 색상을 흰색으로 지정
                         ),
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => MainFeedPage()),
+                          );
+                        },
                         child: Text('로그인'),
                       ),
                     ),
