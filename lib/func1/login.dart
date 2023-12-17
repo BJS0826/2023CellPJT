@@ -1,5 +1,6 @@
 import 'package:cellpjt/func1/signup.dart';
 import 'package:cellpjt/bottomnav/mainfeed.dart';
+import 'package:cellpjt/home_page.dart';
 import 'package:flutter/material.dart';
 
 class LoginPage extends StatelessWidget {
@@ -116,8 +117,7 @@ class LoginPage extends StatelessWidget {
                         onPressed: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(
-                                builder: (context) => MainFeedPage()),
+                            MaterialPageRoute(builder: (context) => HomePage()),
                           );
                         },
                         child: Text('로그인'),

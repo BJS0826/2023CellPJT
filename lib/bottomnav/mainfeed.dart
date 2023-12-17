@@ -1,3 +1,5 @@
+import 'package:cellpjt/func2/aboutgroup%20copy.dart';
+import 'package:cellpjt/func2/members.dart';
 import 'package:flutter/material.dart';
 import 'package:cellpjt/appbar/creategroup.dart';
 import 'package:cellpjt/appbar/groupsearch.dart';
@@ -103,10 +105,18 @@ class _MainFeedPageState extends State<MainFeedPage> {
                       subtitle:
                           Text('3시간 전', style: TextStyle(color: Colors.grey)),
                     ),
-                    Image.asset(
-                      'assets/post_image.jpg',
-                      fit: BoxFit.cover,
-                      height: 200.0,
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => AboutGroupPage()));
+                      },
+                      child: Image.asset(
+                        'assets/post_image.jpg',
+                        fit: BoxFit.cover,
+                        height: 200.0,
+                      ),
                     ),
                     Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -155,50 +165,6 @@ class _MainFeedPageState extends State<MainFeedPage> {
               ),
             );
           },
-        ),
-        bottomNavigationBar: BottomNavigationBar(
-          currentIndex: _currentIndex,
-          selectedItemColor: Colors.black,
-          unselectedItemColor: Colors.black,
-          onTap: (index) {
-            setState(() {
-              _currentIndex = index; // 현재 인덱스 업데이트
-
-              switch (index) {
-                case 0:
-                  // 현재 페이지로 이동 (MainFeedPage)
-                  break;
-                case 1:
-                  // '/grouplist' 경로로 이동
-                  Navigator.pushNamed(context, '/grouplist');
-                  break;
-                case 2:
-                  print('채팅 페이지');
-                  break;
-                case 3:
-                  print('프로필 페이지');
-                  break;
-              }
-            });
-          },
-          items: [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              label: '홈',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.group),
-              label: '모임',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.chat),
-              label: '채팅',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person),
-              label: '프로필',
-            ),
-          ],
         ),
       ),
     );
