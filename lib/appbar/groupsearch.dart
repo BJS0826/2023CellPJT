@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 class GroupSearchPage extends StatelessWidget {
   TextEditingController searchController = TextEditingController();
 
+  GroupSearchPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
