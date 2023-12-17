@@ -1,4 +1,5 @@
 import 'package:cellpjt/func1/login.dart';
+import 'package:cellpjt/func2/groupinfo.dart';
 import 'package:cellpjt/func2/postfeed.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -86,24 +87,25 @@ class _AboutGroupPageState extends State<AboutGroupPage> {
                         children: [
                           SizedBox(width: 8.0),
                           const Text('모임 소개'),
-                        ],
-                      ),
-                    ),
-                    titleSpacing: 0, // 간격을 조절합니다
-                    bottom: PreferredSize(
-                      preferredSize: Size.fromHeight(20.0),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          border: Border(
-                            bottom: BorderSide(
-                              color: Colors.grey.withOpacity(0.2),
-                              width: 2.0,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
+                      ],
+          ),
+        ),
+        titleSpacing: 0, // 간격을 조절합니다
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(20.0),
+          child: Container(
+            decoration: BoxDecoration(
+              border: Border(
+                bottom: BorderSide(
+                  color: Colors.grey.withOpacity(0.2),
+                  width: 2.0,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+
                   body: ListView(
                     padding: EdgeInsets.all(16.0),
                     children: [
