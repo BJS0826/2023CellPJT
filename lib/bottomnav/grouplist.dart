@@ -88,11 +88,22 @@ class _GroupListPageState extends State<GroupListPage> {
                   onPressed: () {
                     // 전체 보기 버튼 페이지 연결
                   },
-                  child: Text('전체 보기'),
+                  style: ElevatedButton.styleFrom(
+                    primary: Colors.white, // 흰색 배경색
+                    onPrimary: Colors.black, // 흰색 배경에 검은색 텍스트
+                    shape: RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.circular(15.0), // 모서리를 둥근 네모로 만듦
+                    ),
+                  ),
+                  child: Text(
+                    '전체 보기',
+                    style: TextStyle(color: Colors.black), // 텍스트 색상
+                  ),
                 ),
               ],
             ),
-            SizedBox(height: 16.0),
+            SizedBox(height: 24.0), // 버튼 간격을 조절
             // 이미지가 포함된 카드 형태의 정모 소개 박스
             Card(
               elevation: 2.0,
@@ -119,16 +130,18 @@ class _GroupListPageState extends State<GroupListPage> {
             // 가로 4개 * 세로 2줄의 버튼 그리드
             GridView.count(
               crossAxisCount: 4,
+              mainAxisSpacing: 8.0, // 버튼 간격을 조절
+              crossAxisSpacing: 8.0, // 버튼 간격을 조절
               shrinkWrap: true,
               children: [
-                ElevatedButton(onPressed: () {}, child: Text('전체보기')),
-                ElevatedButton(onPressed: () {}, child: Text('독서')),
-                ElevatedButton(onPressed: () {}, child: Text('경제')),
-                ElevatedButton(onPressed: () {}, child: Text('예술')),
-                ElevatedButton(onPressed: () {}, child: Text('음악')),
-                ElevatedButton(onPressed: () {}, child: Text('운동')),
-                ElevatedButton(onPressed: () {}, child: Text('직무')),
-                ElevatedButton(onPressed: () {}, child: Text('자유')),
+                _buildCategoryButton('전체보기', 'assets/category_all.png'),
+                _buildCategoryButton('독서', 'assets/category_reading.png'),
+                _buildCategoryButton('경제', 'assets/category_economy.png'),
+                _buildCategoryButton('예술', 'assets/category_art.png'),
+                _buildCategoryButton('음악', 'assets/category_music.png'),
+                _buildCategoryButton('운동', 'assets/category_sports.png'),
+                _buildCategoryButton('직무', 'assets/category_career.png'),
+                _buildCategoryButton('자유', 'assets/category_free.png'),
               ],
             ),
             SizedBox(height: 16.0),
@@ -165,8 +178,37 @@ class _GroupListPageState extends State<GroupListPage> {
       ),
     );
   }
-}
 
-void main() {
-  runApp(GroupListPage());
+  // 수정된 함수 추가
+  Widget _buildCategoryButton(String text, String imagePath) {
+    return Column(
+      children: [
+        ElevatedButton(
+          onPressed: () {
+            // 해당 카테고리로 이동하는 로직 추가
+          },
+          style: ElevatedButton.styleFrom(
+            primary: Colors.white, // 흰색 배경색
+            onPrimary: Colors.black, // 흰색 배경에 검은색 텍스트
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15.0), // 모서리를 둥근 네모로 만듦
+            ),
+          ),
+          child: Container(
+            width: 20.0, // 이미지 너비 조정
+            height: 20.0, // 이미지 높이 조정
+            child: Image.asset(
+              imagePath,
+              fit: BoxFit.cover,
+            ),
+          ),
+        ),
+        SizedBox(height: 8.0), // 텍스트와 버튼 사이의 간격 조절
+        Text(
+          text,
+          style: TextStyle(fontSize: 12.0),
+        ),
+      ],
+    );
+  }
 }
