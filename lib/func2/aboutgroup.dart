@@ -1,5 +1,7 @@
 import 'package:cellpjt/func1/login.dart';
+import 'package:cellpjt/func2/board.dart';
 import 'package:cellpjt/func2/groupinfo.dart';
+import 'package:cellpjt/func2/meetingschedule.dart';
 import 'package:cellpjt/func2/postfeed.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -209,7 +211,13 @@ class _AboutGroupPageState extends State<AboutGroupPage> {
                                   children: [
                                     ElevatedButton(
                                       onPressed: () {
-                                        // 정모 일정 페이지 연결
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                MeetingSchedulePage(),
+                                          ), // 정모 일정 페이지로 이동
+                                        );
                                       },
                                       style: ElevatedButton.styleFrom(
                                         primary: Colors.white,
@@ -246,7 +254,12 @@ class _AboutGroupPageState extends State<AboutGroupPage> {
                                   children: [
                                     ElevatedButton(
                                       onPressed: () {
-                                        // 게시판 페이지 연결
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => BoardPage(),
+                                          ), // 정모 일정 페이지로 이동
+                                        );
                                       },
                                       style: ElevatedButton.styleFrom(
                                         primary: Colors.white,
@@ -323,7 +336,7 @@ class _AboutGroupPageState extends State<AboutGroupPage> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => LoginPage(),
+                                  builder: (context) => PostFeedPage(),
                                 ),
                               );
                             },
@@ -386,7 +399,7 @@ class _AboutGroupPageState extends State<AboutGroupPage> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => LoginPage(),
+                                  builder: (context) => PostFeedPage(),
                                 ),
                               );
                             },
