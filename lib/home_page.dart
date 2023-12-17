@@ -19,14 +19,6 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        toolbarHeight: 38,
-        title: const Text(
-          "모임어플",
-          style: TextStyle(color: Colors.white),
-        ),
-        backgroundColor: Colors.black,
-      ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         iconSize: 24,
@@ -49,7 +41,7 @@ class _HomePageState extends State<HomePage> {
               icon: const Icon(Icons.group),
               color: Colors.black54,
             ),
-            label: '피드',
+            label: '모임',
           ),
           BottomNavigationBarItem(
             icon: IconButton(
