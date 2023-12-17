@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:cellpjt/appbar/creategroup.dart';
 
-class GroupListPage extends StatefulWidget {
+class ProfilePage extends StatefulWidget {
   @override
-  _GroupListPageState createState() => _GroupListPageState();
+  _ProfilePageState createState() => _ProfilePageState();
 }
 
-class _GroupListPageState extends State<GroupListPage> {
+class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -168,5 +168,5 @@ class _GroupListPageState extends State<GroupListPage> {
 }
 
 void main() {
-  runApp(GroupListPage());
+  runApp(ProfilePage());
 }

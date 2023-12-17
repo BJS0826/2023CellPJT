@@ -1,6 +1,9 @@
 import 'package:cellpjt/func1/signup.dart';
 import 'package:cellpjt/bottomnav/mainfeed.dart';
+
 import 'package:firebase_auth/firebase_auth.dart';
+
+import 'package:cellpjt/home_page.dart';
 import 'package:flutter/material.dart';
 
 class LoginPage extends StatefulWidget {
@@ -155,7 +158,15 @@ class _LoginPageState extends State<LoginPage> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8.0),
                         ),
+
                         onPrimary: Colors.white, // 텍스트 색상을 흰색으로 지정
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => HomePage()),
+                          );
+                        },
+                        child: Text('로그인'),
                       ),
                       onPressed: () async {
                         if (_formKey.currentState!.validate()) {
