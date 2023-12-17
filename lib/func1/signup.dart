@@ -112,6 +112,7 @@ class _SignupPageState extends State<SignupPage> {
 
       if (userCredential.user != null) {
         String uid = userCredential.user!.uid;
+        List<String> myMoimList = [];
 
         // 이미지를 Firebase Storage에 업로드
         Reference ref = _storage.ref().child('user_images/$uid.jpg');
@@ -128,6 +129,7 @@ class _SignupPageState extends State<SignupPage> {
           'email': _emailRegister.text,
           'userName': _nameRegister.text,
           'picked_image': imageURL,
+          'myMoimList': myMoimList,
         });
 
         // 회원가입 성공 시 작업 수행

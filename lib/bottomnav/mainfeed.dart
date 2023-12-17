@@ -1,4 +1,4 @@
-import 'package:cellpjt/func2/aboutgroup%20copy.dart';
+import 'package:cellpjt/func2/aboutgroup.dart';
 import 'package:cellpjt/func2/members.dart';
 import 'package:flutter/material.dart';
 import 'package:cellpjt/appbar/creategroup.dart';
