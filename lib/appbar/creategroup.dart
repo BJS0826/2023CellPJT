@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:numberpicker/numberpicker.dart';
+
 class CreateGroupPage extends StatefulWidget {
   @override
   _CreateGroupPageState createState() => _CreateGroupPageState();
@@ -11,44 +13,71 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
   TextEditingController groupNameController = TextEditingController();
   TextEditingController groupDescriptionController = TextEditingController();
   TextEditingController groupMembersController = TextEditingController();
+  int _moimLimit = 10;
 
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: '모임 생성',
-      home: Scaffold(
-        appBar: AppBar(
-          title: Padding(
-            padding: EdgeInsets.only(top: 17.0),
-            child: Row(
-              children: [
-                IconButton(
-                  icon: Icon(Icons.arrow_back),
+  void _showPickerModal(BuildContext context) {
+    int selectedNumber;
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true, // 화면 아래에서 올라오도록 설정
+      builder: (BuildContext context) {
+        return Padding(
+          padding:
+              EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+          child: Row(
+            children: [
+              Container(
+                height: 200.0,
+                child: Center(
+                  child: NumberPicker(
+                    textStyle: TextStyle(fontSize: 12),
+                    minValue: 10,
+                    maxValue: 50,
+                    step: 10,
+                    haptics: true,
+                    value: _moimLimit,
+                    onChanged: (value) {
+                      setState(() {
+                        _moimLimit = value;
+                      });
+                    },
+                  ),
+                ),
+              ),
+              TextButton(
                   onPressed: () {
                     Navigator.pop(context);
                   },
-                ),
-                SizedBox(width: 8.0),
-                const Text('모임 생성'),
-              ],
-            ),
+                  child: Text("닫기"))
+            ],
           ),
-          bottom: PreferredSize(
-            preferredSize: Size.fromHeight(16.0),
-            child: Container(
-              decoration: BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(
-                    color: Colors.grey.withOpacity(0.2),
-                    width: 2.0,
-                  ),
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('모임 생성'),
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(16.0),
+          child: Container(
+            decoration: BoxDecoration(
+              border: Border(
+                bottom: BorderSide(
+                  color: Colors.grey.withOpacity(0.2),
+                  width: 2.0,
                 ),
               ),
             ),
           ),
         ),
-        body: Container(
-          padding: EdgeInsets.all(16.0),
+      ),
+      body: Container(
+        padding: EdgeInsets.all(16.0),
+        child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -89,16 +118,20 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
                       ),
                     ),
                   ),
-                  TextField(
-                    controller: groupDescriptionController,
-                    decoration: InputDecoration(
-                      hintText: '모임 소개를 입력하세요.',
-                      filled: true,
-                      fillColor: Color(0xFFFFFFFF),
-                      contentPadding: EdgeInsets.symmetric(
-                          vertical: 10.0, horizontal: 16.0),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10.0),
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.1,
+                    child: TextField(
+                      maxLines: null,
+                      controller: groupDescriptionController,
+                      decoration: InputDecoration(
+                        hintText: '모임 소개를 입력하세요.',
+                        filled: true,
+                        fillColor: Color(0xFFFFFFFF),
+                        contentPadding: EdgeInsets.symmetric(
+                            vertical: 40.0, horizontal: 16.0),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
                       ),
                     ),
                   ),
@@ -165,20 +198,25 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
                       ),
                     ),
                   ),
-                  TextField(
-                    controller: groupMembersController,
-                    keyboardType: TextInputType.number,
-                    decoration: InputDecoration(
-                      hintText: '모임 인원을 입력하세요.',
-                      filled: true,
-                      fillColor: Color(0xFFFFFFFF),
-                      contentPadding: EdgeInsets.symmetric(
-                          vertical: 10.0, horizontal: 16.0),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                    ),
-                  ),
+                  // TextField(
+                  //   controller: groupMembersController,
+                  //   keyboardType: TextInputType.number,
+                  //   decoration: InputDecoration(
+                  //     hintText: '모임 인원을 입력하세요.',
+                  //     filled: true,
+                  //     fillColor: Color(0xFFFFFFFF),
+                  //     contentPadding: EdgeInsets.symmetric(
+                  //         vertical: 10.0, horizontal: 16.0),
+                  //     border: OutlineInputBorder(
+                  //       borderRadius: BorderRadius.circular(10.0),
+                  //     ),
+                  //   ),
+                  // ),
+                  TextButton(
+                      onPressed: () {
+                        _showPickerModal(context);
+                      },
+                      child: Text('$_moimLimit')),
                 ],
               ),
               Row(
