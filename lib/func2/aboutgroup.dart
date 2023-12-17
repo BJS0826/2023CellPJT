@@ -87,25 +87,24 @@ class _AboutGroupPageState extends State<AboutGroupPage> {
                         children: [
                           SizedBox(width: 8.0),
                           const Text('모임 소개'),
-                      ],
-          ),
-        ),
-        titleSpacing: 0, // 간격을 조절합니다
-        bottom: PreferredSize(
-          preferredSize: Size.fromHeight(20.0),
-          child: Container(
-            decoration: BoxDecoration(
-              border: Border(
-                bottom: BorderSide(
-                  color: Colors.grey.withOpacity(0.2),
-                  width: 2.0,
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-
+                        ],
+                      ),
+                    ),
+                    titleSpacing: 0, // 간격을 조절합니다
+                    bottom: PreferredSize(
+                      preferredSize: Size.fromHeight(20.0),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border(
+                            bottom: BorderSide(
+                              color: Colors.grey.withOpacity(0.2),
+                              width: 2.0,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                   body: ListView(
                     padding: EdgeInsets.all(16.0),
                     children: [
@@ -167,7 +166,13 @@ class _AboutGroupPageState extends State<AboutGroupPage> {
                                   children: [
                                     ElevatedButton(
                                       onPressed: () {
-                                        // 모임 정보 페이지 연결
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                GroupInfoPage(),
+                                          ), // 모임 정보 페이지로 이동
+                                        );
                                       },
                                       style: ElevatedButton.styleFrom(
                                         primary: Colors.white, // 배경 색상 변경
