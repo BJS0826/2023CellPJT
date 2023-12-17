@@ -2,8 +2,13 @@ import 'package:cellpjt/func1/login.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
+import 'package:image_picker/image_picker.dart';
+import 'package:image_cropper/image_cropper.dart';
+import 'package:path_provider/path_provider.dart';
+import 'dart:io';
 import 'package:numberpicker/numberpicker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'dart:math';
 
 class CreateGroupPage extends StatefulWidget {
   @override
@@ -17,6 +22,9 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
   TextEditingController groupDescriptionController = TextEditingController();
   TextEditingController groupMembersController = TextEditingController();
   int moimLimit = 10;
+  final FirebaseStorage _storage = FirebaseStorage.instance;
+
+  File? _image;
 
   Future<void> _addEventToFirestore() async {
     String groupTitle = groupNameController.text;
@@ -27,12 +35,13 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
     String uid = "";
     int point = 0;
     List<String> moimList = [];
-    List<String> moimSchedule = [];
+    List<dynamic> moimSchedule = [];
     List<String> oonYoungJin = [];
 
     if (user != null) {
       uid = user.uid;
       moimList.add(uid);
+      oonYoungJin.add(uid);
     } else {
       auth.signOut().then((_) {
         Navigator.pushReplacement(
@@ -44,7 +53,21 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
 
     if (groupTitle.isNotEmpty && groupIntroduction.isNotEmpty) {
       try {
-        await FirebaseFirestore.instance.collection('Moim').add({
+        String generateRandomId(int length) {
+          const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+          final random = Random();
+          return String.fromCharCodes(Iterable.generate(
+            length,
+            (_) => chars.codeUnitAt(random.nextInt(chars.length)),
+          ));
+        }
+
+        String randomeID = generateRandomId(10);
+        Reference ref = _storage.ref().child('Moim_images/$randomeID.jpg');
+        await ref.putFile(_image!);
+        String imageURL = await ref.getDownloadURL();
+
+        await FirebaseFirestore.instance.collection('Moim').doc(randomeID).set({
           'moimTitle': groupTitle,
           'moimLocation': selectedLocation,
           "moimIntroduction": groupIntroduction,
@@ -55,8 +78,11 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
           "moimPoint": point,
           "boardID": DateTime.now().millisecondsSinceEpoch,
           "moimMembers": moimList,
-          "moimScheule": moimSchedule,
+          "moimSchedule": moimSchedule,
+          "moimCategory": selectedInterest,
+          "moimImage": imageURL
         });
+
         print('모임이 성공적으로 추가되었습니다!');
         Navigator.pop(context);
         // 추가되었으니 필요한 다른 작업을 수행하거나 화면을 닫을 수 있습니다.
@@ -66,6 +92,61 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
     } else {
       print('유효한 정보를 입력하세요.');
     }
+  }
+
+  Future<void> _getImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      var croppedFile = await ImageCropper().cropImage(
+        sourcePath: pickedFile.path,
+        maxWidth: 700,
+        maxHeight: 700,
+        aspectRatio: const CropAspectRatio(ratioX: 1.0, ratioY: 1.0),
+        aspectRatioPresets: const [
+          CropAspectRatioPreset.original,
+          CropAspectRatioPreset.square,
+          CropAspectRatioPreset.ratio3x2,
+          CropAspectRatioPreset.ratio4x3,
+          CropAspectRatioPreset.ratio16x9
+        ],
+        cropStyle: CropStyle.rectangle,
+        compressFormat: ImageCompressFormat.jpg,
+        compressQuality: 70,
+        uiSettings: [
+          AndroidUiSettings(
+            toolbarTitle: 'Crop Image',
+            toolbarColor: Colors.deepOrange,
+            toolbarWidgetColor: Colors.white,
+            initAspectRatio: CropAspectRatioPreset.original,
+            lockAspectRatio: false,
+          ),
+        ],
+      );
+
+      if (croppedFile != null) {
+        _image = await convertCroppedFileToFile(croppedFile);
+
+        setState(() {
+          _image = _image;
+        });
+      }
+    }
+  }
+
+  Future<File> convertCroppedFileToFile(CroppedFile croppedFile) async {
+    final tempDir = await getTemporaryDirectory();
+    final uniqueFileName = DateTime.now().millisecondsSinceEpoch.toString();
+    final File tempFile = File('${tempDir.path}/$uniqueFileName.jpg');
+
+    // Get the cropped image file as bytes
+    final croppedBytes = await croppedFile.readAsBytes();
+
+    // Write the cropped image bytes to the new file
+    await tempFile.writeAsBytes(croppedBytes);
+
+    return tempFile;
   }
 
   @override
@@ -96,6 +177,38 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Padding(
+                    padding: EdgeInsets.only(bottom: 8.0),
+                    child: Text(
+                      '모임 이미지',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16.0,
+                      ),
+                    ),
+                  ),
+                  Center(
+                    child: GestureDetector(
+                      onTap: _getImage,
+                      child: Container(
+                        height: MediaQuery.of(context).size.height * 0.20,
+                        width: MediaQuery.of(context).size.width * 0.7,
+                        decoration: BoxDecoration(
+                            image: _image != null
+                                ? DecorationImage(
+                                    fit: BoxFit.fill,
+                                    image: FileImage(_image!),
+                                  )
+                                : DecorationImage(
+                                    image: AssetImage('assets/logo.png')),
+                            border: _image != null
+                                ? Border.all(width: 1)
+                                : Border.all(color: Color(0xFFFFFFFF)),
+                            borderRadius: BorderRadius.circular(10)),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 16.0),
                   Padding(
                     padding: EdgeInsets.only(bottom: 8.0),
                     child: Text(

@@ -68,9 +68,38 @@ class _AboutGroupPageState extends State<AboutGroupPage> {
                   snapshot.data!.exists) {
                 var moimData = snapshot.data!;
 
-                String moimTitle = moimData['moimTitle'];
-                String moimLocation = moimData['moimLocation'];
-                int moimPoint = moimData['moimPoint'];
+                var moimTitle = moimData['moimTitle'];
+                var moimIntroduction = moimData['moimIntroduction'];
+                var moimLocation = moimData['moimLocation'];
+                var moimPoint = moimData['moimPoint'];
+                var boardId = moimData['boardID'];
+                var createdTime = moimData['createdTime'];
+                var moimJangID = moimData['moimJang'];
+                var moimImage = moimData['moimImage'];
+
+                var moimLimit = moimData['moimLimit'];
+                List<dynamic> moimMembers = moimData['moimMembers'];
+                var moimSchedule = moimData['moimSchedule'];
+                List<dynamic> oonYoungJin = moimData['oonYoungJin'];
+                var moimCategory = moimData['moimCategory'];
+
+                print("=======================================");
+
+                print("모임이름 : $moimTitle");
+                print("모임사진 : $moimImage");
+                print("모임소개 : $moimIntroduction");
+                print("모임장소 : $moimLocation");
+                print("모임포인트 : $moimPoint");
+                print("모임게시판ID : $boardId");
+                print("모임만든날짜 : $createdTime");
+                print("모임장 ID : $moimJangID");
+                print("모임인원 : $moimLimit");
+                print("모임맴버들 : $moimMembers");
+                print("정모스케쥴 : $moimSchedule");
+                print("모임카테고리 : $moimCategory");
+                print("운영진 ID 리스트 : $oonYoungJin");
+
+                print("=======================================");
 
                 return Scaffold(
                   appBar: AppBar(
@@ -116,12 +145,54 @@ class _AboutGroupPageState extends State<AboutGroupPage> {
                             children: [
                               Row(
                                 children: [
-                                  CircleAvatar(
-                                    radius: 20.0,
-                                    backgroundImage:
-                                        AssetImage('assets/profile_image.jpg'),
+                                  GestureDetector(
+                                    onTap: () {
+                                      void _showDialog(BuildContext context) {
+                                        showDialog(
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            return Dialog(
+                                              child: Container(
+                                                height: 400.0,
+                                                width: 300.0,
+                                                child: Column(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    Container(
+                                                      height: 330,
+                                                      width: 300,
+                                                      decoration: BoxDecoration(
+                                                          image: DecorationImage(
+                                                              fit: BoxFit
+                                                                  .contain,
+                                                              image: NetworkImage(
+                                                                  moimImage))),
+                                                    ),
+                                                    SizedBox(height: 20.0),
+                                                    ElevatedButton(
+                                                      onPressed: () {
+                                                        Navigator.of(context)
+                                                            .pop();
+                                                      },
+                                                      child: Text('닫기'),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        );
+                                      }
+
+                                      return _showDialog(context);
+                                    },
+                                    child: CircleAvatar(
+                                      radius: 20.0,
+                                      backgroundImage: NetworkImage(moimImage),
+                                    ),
                                   ),
-                                  SizedBox(width: 8.0),
+                                  SizedBox(width: 13.0),
                                   Text(
                                     moimTitle,
                                     style: TextStyle(
@@ -169,8 +240,22 @@ class _AboutGroupPageState extends State<AboutGroupPage> {
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
-                                            builder: (context) =>
-                                                GroupInfoPage(),
+                                            builder: (context) => GroupInfoPage(
+                                              moimID: moimID,
+                                              moimCategory: moimCategory,
+                                              moimTitle: moimTitle,
+                                              boardId: boardId,
+                                              createdTime: createdTime,
+                                              moimIntroduction:
+                                                  moimIntroduction,
+                                              moimJangID: moimJangID,
+                                              moimLimit: moimLimit,
+                                              moimLocation: moimLocation,
+                                              moimMembers: moimMembers,
+                                              moimPoint: moimPoint,
+                                              moimSchedule: moimSchedule,
+                                              oonYoungJin: oonYoungJin,
+                                            ),
                                           ), // 모임 정보 페이지로 이동
                                         );
                                       },
