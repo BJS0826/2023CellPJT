@@ -131,8 +131,13 @@ class _SignupPageState extends State<SignupPage> {
         // 회원가입 성공 시 작업 수행
         // 예: 다음 화면으로 이동
         if (context.mounted) {
-          Navigator.push(
-              context, MaterialPageRoute(builder: (context) => MainFeedPage()));
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text("회원가입 완료"),
+            backgroundColor: Colors.blue,
+          ));
+          // Navigator.push(
+          //     context, MaterialPageRoute(builder: (context) => MainFeedPage()));
         }
       }
     } catch (e) {

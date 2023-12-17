@@ -16,7 +16,7 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
   int _moimLimit = 10;
 
   void _showPickerModal(BuildContext context) {
-    int selectedNumber;
+    int selectedNumber = _moimLimit;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true, // 화면 아래에서 올라오도록 설정
@@ -35,10 +35,11 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
                     maxValue: 50,
                     step: 10,
                     haptics: true,
-                    value: _moimLimit,
+                    value: selectedNumber,
                     onChanged: (value) {
                       setState(() {
-                        _moimLimit = value;
+                        selectedNumber = value;
+                        _moimLimit = selectedNumber;
                       });
                     },
                   ),
