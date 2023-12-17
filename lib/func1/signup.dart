@@ -20,7 +20,7 @@ class _SignupPageState extends State<SignupPage> {
   bool showSpinner = false;
 
   File? _image;
-  final picker = ImagePicker();
+
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
   bool imageCheck = false;
