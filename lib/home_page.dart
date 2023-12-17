@@ -2,6 +2,7 @@ import 'package:cellpjt/bottomnav/grouplist.dart';
 import 'package:cellpjt/bottomnav/mainfeed.dart';
 import 'package:cellpjt/bottomnav/chatting.dart';
 import 'package:cellpjt/bottomnav/profile.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
@@ -17,6 +18,10 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final FirebaseAuth _auth = FirebaseAuth.instance;
+    User? user = _auth.currentUser;
+    print("userUID!!!!! : ${user!.uid}");
+
     return Scaffold(
       backgroundColor: Colors.white,
       bottomNavigationBar: BottomNavigationBar(
