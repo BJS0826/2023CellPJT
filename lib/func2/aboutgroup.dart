@@ -1,4 +1,5 @@
 import 'package:cellpjt/func1/login.dart';
+import 'package:cellpjt/func2/groupinfo.dart';
 import 'package:cellpjt/func2/postfeed.dart';
 import 'package:flutter/material.dart';
 import 'package:cellpjt/func2/members.dart';
@@ -104,7 +105,12 @@ class _AboutGroupPageState extends State<AboutGroupPage> {
                       children: [
                         ElevatedButton(
                           onPressed: () {
-                            // 모임 정보 페이지 연결
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => GroupInfoPage(),
+                              ), // 모임 정보 페이지로 이동
+                            );
                           },
                           style: ElevatedButton.styleFrom(
                             primary: Colors.white, // 배경 색상 변경
