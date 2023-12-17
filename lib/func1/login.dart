@@ -160,13 +160,6 @@ class _LoginPageState extends State<LoginPage> {
                         ),
 
                         onPrimary: Colors.white, // 텍스트 색상을 흰색으로 지정
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => HomePage()),
-                          );
-                        },
-                        child: Text('로그인'),
                       ),
                       onPressed: () async {
                         if (_formKey.currentState!.validate()) {
