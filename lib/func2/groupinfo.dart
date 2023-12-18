@@ -15,23 +15,25 @@ class GroupInfoPage extends StatefulWidget {
   final moimJangID;
   final moimSchedule;
   final List<dynamic> oonYoungJin;
+
   final moimCategory;
 
-  const GroupInfoPage(
-      {super.key,
-      this.moimTitle,
-      this.moimIntroduction,
-      this.moimLocation,
-      this.moimPoint,
-      this.boardId,
-      this.createdTime,
-      this.moimLimit,
-      required this.moimMembers,
-      this.moimJangID,
-      this.moimSchedule,
-      required this.oonYoungJin,
-      this.moimCategory,
-      required this.moimID});
+  const GroupInfoPage({
+    super.key,
+    this.moimTitle,
+    this.moimIntroduction,
+    this.moimLocation,
+    this.moimPoint,
+    this.boardId,
+    this.createdTime,
+    this.moimLimit,
+    required this.moimMembers,
+    this.moimJangID,
+    this.moimSchedule,
+    required this.oonYoungJin,
+    this.moimCategory,
+    required this.moimID,
+  });
 
   @override
   State<GroupInfoPage> createState() => _GroupInfoPageState();
@@ -40,18 +42,22 @@ class GroupInfoPage extends StatefulWidget {
 class _GroupInfoPageState extends State<GroupInfoPage> {
   String MoimJang = "";
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
   User? user;
+  List<String> oonYoungJinList = [];
+  late String _selectedItem;
 
   @override
-  void initState() {
+  initState() {
     // TODO: implement initState
     fetchUserName();
     user = _auth.currentUser;
+    managementCheck();
+    oonYoungJinLists(oonYoungJinList);
+    _selectedItem = widget.moimCategory;
   }
 
   Future<String?> fetchUserName() async {
-    FirebaseFirestore firestore = FirebaseFirestore.instance;
-
     try {
       DocumentSnapshot userSnapshot = await firestore
           .collection('user') // 사용자 정보가 있는 컬렉션 이름
@@ -63,6 +69,7 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
         // 문서에서 'userName' 필드 가져오기
         setState(() {
           MoimJang = userSnapshot['userName'];
+          oonYoungJinList.add(MoimJang);
         });
         print("모임장 : $MoimJang");
       } else {
@@ -73,11 +80,36 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
       print('유저 이름 가져오기 중 오류 발생: $e');
       return null;
     }
+    return null;
+  }
+
+  Future<List<String>> oonYoungJinLists(oonYoungJinList) async {
+    for (int i = 0; i < widget.oonYoungJin.length; i++) {
+      DocumentSnapshot Snapshot2 = await firestore
+          .collection('user') // 사용자 정보가 있는 컬렉션 이름
+          .doc(widget.oonYoungJin[i]) // 문서 ID
+          .get();
+      String str = Snapshot2["userName"];
+      oonYoungJinList.add(str);
+    }
+    return oonYoungJinList;
   }
 
   bool management = false;
+
+  void managementCheck() {
+    for (int i = 0; i < widget.oonYoungJin.length; i++) {
+      if (user?.uid == widget.oonYoungJin[i] || user?.uid == MoimJang) {
+        setState(() {
+          management = true;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    print(oonYoungJinList);
     return management
         ? Scaffold(
             appBar: AppBar(
@@ -93,7 +125,7 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
                 child: Row(
                   children: [
                     SizedBox(width: 8.0),
-                    const Text('모임 정보'),
+                    const Text('모임 수정'),
                   ],
                 ),
               ),
@@ -121,23 +153,16 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
                     ElevatedButton(
                         onPressed: () {
                           for (int i = 0; i < widget.oonYoungJin.length; i++) {
-                            if (user?.uid == widget.oonYoungJin[i]) {
-                              setState(() {
-                                management = false;
-                              });
+                            if (user?.uid == widget.oonYoungJin[i] ||
+                                user?.uid == MoimJang) {
+                              setState(() {});
                             }
                           }
                         },
                         child: Text("수정하기")),
                     ElevatedButton(
                         onPressed: () {
-                          for (int i = 0; i < widget.oonYoungJin.length; i++) {
-                            if (user?.uid == widget.oonYoungJin[i]) {
-                              setState(() {
-                                management = false;
-                              });
-                            }
-                          }
+                          Navigator.pop(context);
                         },
                         child: Text("취소하기")),
                   ],
@@ -158,19 +183,11 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
                 ),
                 // 2번째 열 - '구로 독서 모임 1기'
                 ListTile(
-                  title: Container(
-                    padding: EdgeInsets.all(8.0),
-                    margin: EdgeInsets.only(
-                        left: 8.0,
-                        right: 8.0,
-                        top: 4.0,
-                        bottom: 4.0), // 여백 조절 및 모서리 둥글게
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                          color: Colors.grey.withOpacity(0.2), width: 2.0),
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                    child: Text(widget.moimTitle),
+                  title: TextFormField(
+                    decoration: InputDecoration(
+                        labelText: widget.moimTitle,
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20))),
                   ),
                 ),
                 ListTile(
@@ -200,9 +217,10 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
                           color: Colors.grey.withOpacity(0.2), width: 2.0),
                       borderRadius: BorderRadius.circular(8.0),
                     ),
-                    child: Text('$MoimJang'),
+                    child: Text(MoimJang),
                   ),
                 ),
+
                 // 3번째 열 - '모임소개'
                 ListTile(
                   title: Padding(
@@ -219,19 +237,11 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
                 ),
                 // 4번째 열 - '독서 습관을 만드는 모임'
                 ListTile(
-                  title: Container(
-                    padding: EdgeInsets.all(8.0),
-                    margin: EdgeInsets.only(
-                        left: 8.0,
-                        right: 8.0,
-                        top: 4.0,
-                        bottom: 4.0), // 여백 조절 및 모서리 둥글게
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                          color: Colors.grey.withOpacity(0.2), width: 2.0),
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                    child: Text(widget.moimIntroduction),
+                  title: TextFormField(
+                    decoration: InputDecoration(
+                        labelText: widget.moimIntroduction,
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20))),
                   ),
                 ),
                 // 5번째 열 - '관심사'
@@ -250,17 +260,26 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
                 ),
                 // 6번째 열 - 투명한 회색 사각형 배경에 '독서'
                 ListTile(
-                  title: Container(
-                    color: Colors.grey.withOpacity(0.2),
-                    padding: EdgeInsets.all(8.0),
-                    margin: EdgeInsets.only(
-                        left: 8.0,
-                        right: 8.0,
-                        top: 4.0,
-                        bottom: 4.0), // 여백 조절 및 모서리 둥글게
-                    child: Text(widget.moimCategory),
+                  title: Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: DropdownButton<String>(
+                      value: _selectedItem,
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          _selectedItem = newValue!;
+                        });
+                      },
+                      items: <String>['독서', '경제', '예술', '음악', "운동", "직무", "자유"]
+                          .map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                    ),
                   ),
                 ),
+
                 // 7번째 열 - '지역'
                 ListTile(
                   title: Padding(
@@ -376,17 +395,6 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
             body: ListView(
               padding: EdgeInsets.all(16.0),
               children: [
-                ElevatedButton(
-                    onPressed: () {
-                      for (int i = 0; i < widget.oonYoungJin.length; i++) {
-                        if (user?.uid == widget.oonYoungJin[i]) {
-                          setState(() {
-                            management = true;
-                          });
-                        }
-                      }
-                    },
-                    child: Text("수정하기")),
                 // 1번째 열 - '모임명'
                 ListTile(
                   title: Padding(

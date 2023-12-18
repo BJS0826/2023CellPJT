@@ -21,20 +21,22 @@ class _AboutGroupPageState extends State<AboutGroupPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   late Future<DocumentSnapshot<Map<String, dynamic>>> userData;
   String? moimID;
+  User? user;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+
+    user = _auth.currentUser;
     fetchUserData();
   }
 
   Future<void> fetchUserData() async {
-    User? user = _auth.currentUser;
     if (user != null) {
       DocumentSnapshot<Map<String, dynamic>> snapshot =
-          await _firestore.collection('user').doc(user.uid).get();
-      print("userUID!!!!! : ${user.uid}");
+          await _firestore.collection('user').doc(user?.uid).get();
+      print("userUID!!!!! : ${user?.uid}");
       setState(() {
         userData = Future.value(snapshot);
         print("USER DATA !!!! :  $userData");
