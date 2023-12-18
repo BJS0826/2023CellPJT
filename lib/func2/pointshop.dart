@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 
-class PostFeedPage extends StatefulWidget {
+class PointShopPage extends StatefulWidget {
   @override
-  _PostFeedPageState createState() => _PostFeedPageState();
+  _PointShopPageState createState() => _PointShopPageState();
 }
 
-class _PostFeedPageState extends State<PostFeedPage> {
-  List<String> meetingList = ['독서 모임', '운동 모임', '찬양 집회']; // 예시 정모 목록
+class _PointShopPageState extends State<PointShopPage> {
+  List<PointShopItem> pointShopItems = [
+    PointShopItem('아이템1', 'assets/point.png', 100),
+    PointShopItem('아이템2', 'assets/point.png', 150),
+    PointShopItem('아이템3', 'assets/point.png', 200),
+  ]; // 샘플 포인트 상품 목록
 
-  String selectedMeeting = '';
+  PointShopItem? selectedMeeting;
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +30,7 @@ class _PostFeedPageState extends State<PostFeedPage> {
           child: Row(
             children: [
               SizedBox(width: 8.0),
-              const Text('피드 작성'),
+              const Text('포인트 상점'),
             ],
           ),
         ),
@@ -48,12 +52,12 @@ class _PostFeedPageState extends State<PostFeedPage> {
       body: ListView(
         padding: EdgeInsets.all(16.0),
         children: [
-          // 1. '정모 선택' 열
+          // 1. '상품 선택' 열
           ListTile(
             title: Padding(
               padding: const EdgeInsets.only(left: 8.0),
               child: Text(
-                '정모 선택',
+                '상품 선택',
                 style: TextStyle(
                   fontSize: 20.0,
                   fontWeight: FontWeight.bold,
@@ -62,7 +66,7 @@ class _PostFeedPageState extends State<PostFeedPage> {
               ),
             ),
           ),
-          // 2. '피드를 남기고자 하는 정모를 선택하세요.' 텍스트
+          // 2. '포인트로 구매하고자 하는 상품을 선택하세요.' 텍스트
           ListTile(
             title: Container(
               padding: EdgeInsets.all(8.0),
@@ -73,83 +77,17 @@ class _PostFeedPageState extends State<PostFeedPage> {
                 bottom: 4.0,
               ),
               child: Text(
-                '피드를 남기고자 하는 정모를 선택하세요.',
+                '포인트로 구매하고자 하는 상품을 선택하세요.',
                 style: TextStyle(
                   color: Colors.grey,
                 ),
               ),
             ),
           ),
-          // 3. 정모 선택을 위한 리스트뷰
+          // 3. 상품 선택을 위한 리스트뷰
           _buildMeetingListView(),
 
-          // 4. '사진 첨부' 열
-          ListTile(
-            title: Padding(
-              padding: const EdgeInsets.only(left: 8.0),
-              child: Text(
-                '사진 첨부',
-                style: TextStyle(
-                  fontSize: 20.0,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-              ),
-            ),
-          ),
-          // 5. '사진을 선택하세요.' 텍스트
-          ListTile(
-            title: Container(
-              padding: EdgeInsets.all(8.0),
-              margin: EdgeInsets.only(
-                left: 8.0,
-                right: 8.0,
-                top: 4.0,
-                bottom: 4.0,
-              ),
-              child: Text(
-                '사진을 선택하세요.',
-                style: TextStyle(
-                  color: Colors.grey,
-                ),
-              ),
-            ),
-          ),
-          // 6. '피드 내용' 열
-          ListTile(
-            title: Padding(
-              padding: const EdgeInsets.only(left: 8.0),
-              child: Text(
-                '피드 내용',
-                style: TextStyle(
-                  fontSize: 20.0,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-              ),
-            ),
-          ),
-          // 7. '내용을 작성하세요.' 텍스트 필드
-          Container(
-            padding: EdgeInsets.all(8.0),
-            margin: EdgeInsets.only(
-              left: 8.0,
-              right: 8.0,
-              top: 4.0,
-              bottom: 4.0,
-            ),
-            child: TextFormField(
-              maxLines: null, // 세로로 길어질 수 있도록
-              decoration: InputDecoration(
-                hintText: '내용을 작성하세요.',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-              ),
-            ),
-          ),
-
-          // 8. '피드 올리기' 버튼
+          // 7. '구매하기' 버튼
           _buildRoundedButton(context),
         ],
       ),
@@ -161,15 +99,41 @@ class _PostFeedPageState extends State<PostFeedPage> {
       margin: EdgeInsets.symmetric(vertical: 8.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: meetingList
+        children: pointShopItems
             .map(
-              (meeting) => RadioListTile(
-                title: Text(meeting),
-                value: meeting,
+              (item) => Card(
+                child: ListTile(
+                  title: Text(item.name),
+                  subtitle: Text('${item.points} 포인트'),
+                  leading: Image.asset(item.imagePath),
+                  onTap: () {
+                    setState(() {
+                      selectedMeeting = item;
+                    });
+                  },
+                  selected: selectedMeeting == item,
+                ),
+              ),
+            )
+            .toList(),
+      ),
+    );
+  }
+
+  Widget _buildQuantityListView() {
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [1, 2, 3, 4, 5]
+            .map(
+              (quantity) => RadioListTile(
+                title: Text(quantity.toString()),
+                value: quantity.toString(),
                 groupValue: selectedMeeting,
                 onChanged: (value) {
                   setState(() {
-                    selectedMeeting = value as String;
+                    selectedMeeting = value as PointShopItem?;
                   });
                 },
               ),
@@ -182,7 +146,7 @@ class _PostFeedPageState extends State<PostFeedPage> {
   Widget _buildRoundedButton(BuildContext context) {
     return ElevatedButton(
       onPressed: () {
-        // 피드 올리기 버튼을 눌렀을 때의 로직을 추가하세요.
+        // 구매하기 버튼을 눌렀을 때의 로직을 추가하세요.
       },
       style: ElevatedButton.styleFrom(
         primary: Color(0xFFFF6F61), // 코랄 핑크 색상
@@ -195,7 +159,7 @@ class _PostFeedPageState extends State<PostFeedPage> {
       child: Padding(
         padding: EdgeInsets.all(8.0),
         child: Text(
-          '피드 올리기',
+          '구매하기',
           style: TextStyle(
             fontSize: 12.0,
             fontWeight: FontWeight.bold,
@@ -204,4 +168,12 @@ class _PostFeedPageState extends State<PostFeedPage> {
       ),
     );
   }
+}
+
+class PointShopItem {
+  final String name;
+  final String imagePath;
+  final int points;
+
+  PointShopItem(this.name, this.imagePath, this.points);
 }
