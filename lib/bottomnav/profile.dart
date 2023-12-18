@@ -1,3 +1,5 @@
+import 'package:cellpjt/appbar/notification.dart';
+import 'package:cellpjt/bottomnav/editprofile.dart';
 import 'package:flutter/material.dart';
 import 'package:cellpjt/appbar/creategroup.dart';
 
@@ -55,7 +57,11 @@ class _ProfilePageState extends State<ProfilePage> {
               child: IconButton(
                 icon: Icon(Icons.notifications),
                 onPressed: () {
-                  // 알림 버튼 페이지 연결
+                  // 글 작성 버튼 페이지 연결
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => NotificationPage()),
+                  );
                 },
               ),
             ),
@@ -77,65 +83,93 @@ class _ProfilePageState extends State<ProfilePage> {
         body: ListView(
           padding: EdgeInsets.all(16.0),
           children: [
+            // 프로필 정보
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  '추천 정모',
-                  style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
+                // 프로필 이미지, 이름, 소개 및 편집 버튼
+                Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 40.0,
+                      backgroundImage: AssetImage('assets/profile_image.jpg'),
+                    ),
+                    SizedBox(width: 16.0),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '강현규',
+                          style: TextStyle(
+                              fontSize: 20.0, fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          '한국의 일론 머스크',
+                          style: TextStyle(fontSize: 16.0),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    // 전체 보기 버튼 페이지 연결
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => EditProfilePage()),
+                    );
                   },
-                  child: Text('전체 보기'),
+                  child: Text('프로필 편집'),
                 ),
               ],
             ),
             SizedBox(height: 16.0),
-            // 이미지가 포함된 카드 형태의 정모 소개 박스
-            Card(
-              elevation: 2.0,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // 정모 이미지
-                  Image.asset(
-                    'assets/meeting_image.jpg',
-                    fit: BoxFit.cover,
-                    height: 200.0,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      '정모명 및 날짜',
-                      style: TextStyle(fontSize: 16.0),
-                    ),
-                  ),
-                ],
-              ),
+            // 관심사 리스트
+            Text(
+              '관심사',
+              style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 16.0),
-            // 가로 4개 * 세로 2줄의 버튼 그리드
+            SizedBox(height: 8.0),
+            // GridView로 관심사 표시
             GridView.count(
               crossAxisCount: 4,
               shrinkWrap: true,
               children: [
-                ElevatedButton(onPressed: () {}, child: Text('전체보기')),
-                ElevatedButton(onPressed: () {}, child: Text('독서')),
+                ElevatedButton(onPressed: () {}, child: Text('운동')),
                 ElevatedButton(onPressed: () {}, child: Text('경제')),
                 ElevatedButton(onPressed: () {}, child: Text('예술')),
                 ElevatedButton(onPressed: () {}, child: Text('음악')),
-                ElevatedButton(onPressed: () {}, child: Text('운동')),
-                ElevatedButton(onPressed: () {}, child: Text('직무')),
-                ElevatedButton(onPressed: () {}, child: Text('자유')),
+                // ... 추가 관심사 버튼
               ],
             ),
             SizedBox(height: 16.0),
-            // 모임명과 모임 설명이 나열되는 리스트뷰
+            // 지역 리스트
+            Text(
+              '지역',
+              style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 8.0),
+            // ListView로 지역 표시
             ListView.builder(
               shrinkWrap: true,
-              itemCount: 5,
+              itemCount: 2,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  title: Text('서울'), // 지역명 또는 선택된 지역
+                );
+              },
+            ),
+            SizedBox(height: 16.0),
+            // 내 모임 리스트
+            Text(
+              '내 모임',
+              style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 8.0),
+            // ListView로 내 모임 표시
+            ListView.builder(
+              shrinkWrap: true,
+              itemCount: 3,
               itemBuilder: (context, index) {
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 16.0),
@@ -154,19 +188,55 @@ class _ProfilePageState extends State<ProfilePage> {
                           subtitle: Text('모임 설명',
                               style: TextStyle(color: Colors.grey)),
                         ),
+                        // ... 추가 정보 (모임 인원 등)
                       ],
                     ),
                   ),
                 );
               },
             ),
+            SizedBox(height: 16.0),
+            // 내 정모 리스트 (슬라이드로 볼 수 있게끔)
+            Text(
+              '내 정모',
+              style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 8.0),
+            // Container 내에서 PageView로 정모 목록 표시
+            Container(
+              height: 200.0,
+              child: PageView.builder(
+                itemCount: 3,
+                itemBuilder: (context, index) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Card(
+                      elevation: 2.0,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Image.asset(
+                            'assets/meeting_image.jpg',
+                            fit: BoxFit.cover,
+                            height: 120.0,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(
+                              '정모명과 날짜',
+                              style: TextStyle(fontSize: 16.0),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
           ],
         ),
       ),
     );
   }
-}
-
-void main() {
-  runApp(ProfilePage());
 }

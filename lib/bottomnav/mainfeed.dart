@@ -1,3 +1,4 @@
+import 'package:cellpjt/appbar/notification.dart';
 import 'package:cellpjt/func2/aboutgroup.dart';
 import 'package:cellpjt/func2/members.dart';
 import 'package:flutter/material.dart';
@@ -67,7 +68,11 @@ class _MainFeedPageState extends State<MainFeedPage> {
               child: IconButton(
                 icon: Icon(Icons.notifications),
                 onPressed: () {
-                  // 알림 버튼 페이지 연결
+                  // 글 작성 버튼 페이지 연결
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => NotificationPage()),
+                  );
                 },
               ),
             ),

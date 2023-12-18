@@ -1,3 +1,4 @@
+import 'package:cellpjt/func2/board_post.dart';
 import 'package:flutter/material.dart';
 
 class BoardPage extends StatelessWidget {
@@ -13,7 +14,7 @@ class BoardPage extends StatelessWidget {
         actions: [
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: _buildRoundedButton(),
+            child: _buildRoundedButton(context),
           ),
         ],
       ),
@@ -125,9 +126,18 @@ class BoardPage extends StatelessWidget {
     );
   }
 
-  Widget _buildRoundedButton() {
+  Widget _buildRoundedButton(BuildContext context) {
     return ElevatedButton(
-      onPressed: () {},
+      onPressed: () {
+        // 특정 페이지로 이동하는 코드를 여기에 추가
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) =>
+                BoardPostPage(), // YourDestinationPage는 이동하고자 하는 페이지의 클래스명
+          ),
+        );
+      },
       style: ElevatedButton.styleFrom(
         primary: Color(0xFFFF6F61), // 코랄 핑크 색상
         onPrimary: Colors.white,

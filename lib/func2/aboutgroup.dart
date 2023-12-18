@@ -2,6 +2,8 @@ import 'package:cellpjt/func1/login.dart';
 import 'package:cellpjt/func2/board.dart';
 import 'package:cellpjt/func2/groupinfo.dart';
 import 'package:cellpjt/func2/meetingschedule.dart';
+import 'package:cellpjt/func2/meetingsettings.dart';
+import 'package:cellpjt/func2/pointshop.dart';
 import 'package:cellpjt/func2/postfeed.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -484,7 +486,7 @@ class _AboutGroupPageState extends State<AboutGroupPage> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => PostFeedPage(),
+                                  builder: (context) => PointShopPage(),
                                 ),
                               );
                             },
@@ -547,7 +549,8 @@ class _AboutGroupPageState extends State<AboutGroupPage> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => LoginPage(),
+                                  builder: (context) => MeetingSettingsPage(
+                                      meetingName: 'Meeting Name'),
                                 ),
                               );
                             },
