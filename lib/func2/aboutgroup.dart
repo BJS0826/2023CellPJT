@@ -16,6 +16,7 @@ class AboutGroupPage extends StatefulWidget {
 }
 
 class _AboutGroupPageState extends State<AboutGroupPage> {
+  
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   late bool management = false;
   final FirebaseAuth _auth = FirebaseAuth.instance;

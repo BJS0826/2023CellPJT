@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import 'moimjang.dart';
+
 class GroupInfoPage extends StatefulWidget {
   final moimID;
   final moimTitle;
@@ -44,8 +46,8 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   FirebaseFirestore firestore = FirebaseFirestore.instance;
   User? user;
-  List<String> oonYoungJinList = [];
   late String _selectedItem;
+  late String _selectedLocation;
 
   @override
   initState() {
@@ -53,8 +55,8 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
     fetchUserName();
     user = _auth.currentUser;
     managementCheck();
-    oonYoungJinLists(oonYoungJinList);
     _selectedItem = widget.moimCategory;
+    _selectedLocation = widget.moimLocation;
   }
 
   Future<String?> fetchUserName() async {
@@ -69,7 +71,6 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
         // 문서에서 'userName' 필드 가져오기
         setState(() {
           MoimJang = userSnapshot['userName'];
-          oonYoungJinList.add(MoimJang);
         });
         print("모임장 : $MoimJang");
       } else {
@@ -109,7 +110,6 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
 
   @override
   Widget build(BuildContext context) {
-    print(oonYoungJinList);
     return management
         ? Scaffold(
             appBar: AppBar(
@@ -206,19 +206,27 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
                 // 2번째 열 - '구로 독서 모임 1기'
                 ListTile(
                   title: Container(
-                    padding: EdgeInsets.all(8.0),
-                    margin: EdgeInsets.only(
-                        left: 8.0,
-                        right: 8.0,
-                        top: 4.0,
-                        bottom: 4.0), // 여백 조절 및 모서리 둥글게
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                          color: Colors.grey.withOpacity(0.2), width: 2.0),
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                    child: Text(MoimJang),
-                  ),
+                      padding: EdgeInsets.all(8.0),
+                      margin: EdgeInsets.only(
+                          left: 8.0,
+                          right: 8.0,
+                          top: 4.0,
+                          bottom: 4.0), // 여백 조절 및 모서리 둥글게
+
+                      child: TextButton(
+                          onPressed: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => MoimJangModi(
+                                        moimID: widget.moimID,
+                                        MoimJang: MoimJang,
+                                      ))),
+                          child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                MoimJang,
+                                style: TextStyle(fontSize: 20),
+                              )))),
                 ),
 
                 // 3번째 열 - '모임소개'
@@ -269,8 +277,15 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
                           _selectedItem = newValue!;
                         });
                       },
-                      items: <String>['독서', '경제', '예술', '음악', "운동", "직무", "자유"]
-                          .map<DropdownMenuItem<String>>((String value) {
+                      items: <String>[
+                        '독서',
+                        '경제',
+                        '예술',
+                        '음악',
+                        "운동",
+                        "직무",
+                        "자유",
+                      ].map<DropdownMenuItem<String>>((String value) {
                         return DropdownMenuItem<String>(
                           value: value,
                           child: Text(value),
@@ -296,15 +311,30 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
                 ),
                 // 8번째 열 - 투명한 회색 사각형 배경에 '서울'
                 ListTile(
-                  title: Container(
-                    color: Colors.grey.withOpacity(0.2),
-                    padding: EdgeInsets.all(8.0),
-                    margin: EdgeInsets.only(
-                        left: 8.0,
-                        right: 8.0,
-                        top: 4.0,
-                        bottom: 4.0), // 여백 조절 및 모서리 둥글게
-                    child: Text(widget.moimLocation),
+                  title: Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: DropdownButton<String>(
+                      value: _selectedLocation,
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          _selectedLocation = newValue!;
+                        });
+                      },
+                      items: <String>[
+                        '서울',
+                        '경기 남부',
+                        '경기 북부',
+                        '인천',
+                        "부산",
+                        "그 외",
+                        "온라인"
+                      ].map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                    ),
                   ),
                 ),
                 // 9번째 열 - '모임 인원'
