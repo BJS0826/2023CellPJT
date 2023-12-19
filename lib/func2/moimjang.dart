@@ -3,130 +3,154 @@ import 'package:flutter/material.dart';
 
 class MoimJangModi extends StatefulWidget {
   final moimID;
-  final MoimJang;
-  const MoimJangModi({super.key, required this.moimID, required this.MoimJang});
+
+  final Map<String, dynamic> Leader;
+  final Map<String, dynamic> oonYoungJinList;
+  const MoimJangModi(
+      {super.key,
+      required this.moimID,
+      required this.Leader,
+      required this.oonYoungJinList});
 
   @override
   State<MoimJangModi> createState() => _MoimJangModiState();
 }
 
 class _MoimJangModiState extends State<MoimJangModi> {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  late Future<DocumentSnapshot<Map<String, dynamic>>> userData;
+  final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-  List<String> oonyoungjinList = [];
   late String name;
 
-  Future<List<String>> managementsData(oonyoungjinList) async {
-    DocumentSnapshot<Map<String, dynamic>> snapshot =
-        await _firestore.collection('Moim').doc(widget.moimID).get();
-    List<dynamic> c = snapshot["oonYoungJin"];
-    print("돌아가는 숫자는 :  ${c.length}");
-    List<String> oonyoungjinList = [];
-    for (String userID in c) {
-      DocumentSnapshot<Map<String, dynamic>> snapshot2 =
-          await _firestore.collection('user').doc(userID).get();
+  Future<void> updateLeaderField() async {
+    try {
+      // 예를 들어 'moimID'라는 Moim 문서의 ID를 가정합니다.
 
-      if (snapshot2.exists) {
-        String str = snapshot2.data()?['userName'];
+      // 업데이트할 Moim 문서의 레퍼런스 가져오기
+      DocumentReference moimRef =
+          firestore.collection('Moim').doc(widget.moimID);
 
-        print("str == $str");
-        oonyoungjinList.add(str); // 사용자 이름을 oonyoungjinList에 추가
+      String findKeyWithValue(Map<String, dynamic> map, dynamic targetValue) {
+        String foundKey = "";
+
+        map.forEach((key, value) {
+          if (key == targetValue) {
+            foundKey = value;
+          }
+        });
+
+        if (foundKey != null) {
+          print('찾은 키: $foundKey');
+        } else {
+          print('해당 값의 키를 찾을 수 없습니다.');
+        }
+        return foundKey;
       }
-    }
-    print("str == $oonyoungjinList");
 
-    return oonyoungjinList;
+      String keys = findKeyWithValue(widget.oonYoungJinList, name);
+
+      // 업데이트할 데이터 생성
+      Map<String, dynamic> updatedData = {
+        'moimLeader': {name: keys},
+      };
+
+      // Moim 문서의 'leader' 필드 업데이트
+      await moimRef.update(updatedData);
+      print(" $name : $keys ");
+      print('Moim 문서의 "leader" 필드가 업데이트되었습니다.');
+    } catch (e) {
+      print('Moim 문서 "leader" 필드 업데이트 오류: $e');
+    }
   }
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    name = widget.MoimJang;
+    name = widget.Leader.keys.first;
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-        future: managementsData(oonyoungjinList),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Scaffold(
-              body: Center(
-                child: CircularProgressIndicator(),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("모임장 양도"),
+      ),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text("모임장 : $name"),
+          SizedBox(
+            width: 40,
+          ),
+          Text("모임장은 운영진만 선택 가능합니다."),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text("모임장 양도 선택 : "),
+              DropdownButton<String>(
+                onChanged: (String? newValue) {
+                  setState(() {
+                    name = newValue!;
+                  });
+                },
+                items: widget.oonYoungJinList.keys
+                    .toList()
+                    .map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
               ),
-            );
-          } else {
-            if (snapshot.hasError) {
-              return Scaffold(
-                body: Center(
-                  child: Text('데이터를 불러올 수 없습니다.'),
-                ),
-              );
-            } else {
-              if (snapshot.hasData && snapshot.data != null) {
-                List<String>? managements = snapshot.data;
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  showAlertDialog(context);
+                },
+                child: Text("모임장양도"),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text("취소"),
+              ),
+            ],
+          )
+        ],
+      ),
+    );
+  }
 
-                return Scaffold(
-                  appBar: AppBar(
-                    title: Text("모임장 양도"),
-                  ),
-                  body: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text("모임장 : $name"),
-                      SizedBox(
-                        width: 40,
-                      ),
-                      Text("모임장은 운영진만 선택 가능합니다."),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text("모임장 양도 선택 : "),
-                          DropdownButton<String>(
-                            onChanged: (String? newValue) {
-                              setState(() {
-                                name = newValue!;
-                              });
-                            },
-                            items: managements
-                                ?.map<DropdownMenuItem<String>>((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(value),
-                              );
-                            }).toList(),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          ElevatedButton(
-                            onPressed: () async {},
-                            child: Text("모임장양도"),
-                          ),
-                          ElevatedButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                            child: Text("취소"),
-                          ),
-                        ],
-                      )
-                    ],
-                  ),
-                );
-              }
-            }
-          }
-          return Scaffold(
-            body: Center(
-              child: Text('데이터를 불러올 수 없습니다.'),
+  void showAlertDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('알림'),
+          content: Text('정말 모임장을 바꾸시겠습니까?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                updateLeaderField();
+                Navigator.of(context).pop();
+              },
+              child: Text('모임장양도'),
             ),
-          );
-        });
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('취소'),
+            ),
+          ],
+        );
+      },
+    );
   }
 }
