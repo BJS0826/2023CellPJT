@@ -1,4 +1,3 @@
-import 'package:cellpjt/func1/login.dart';
 import 'package:cellpjt/func2/board.dart';
 import 'package:cellpjt/func2/groupinfo.dart';
 import 'package:cellpjt/func2/meetingschedule.dart';
@@ -16,7 +15,6 @@ class AboutGroupPage extends StatefulWidget {
 }
 
 class _AboutGroupPageState extends State<AboutGroupPage> {
-  
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   late bool management = false;
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -87,11 +85,20 @@ class _AboutGroupPageState extends State<AboutGroupPage> {
                 var moimLimit = moimData['moimLimit'];
                 List<dynamic> moimMembers = moimData['moimMembers'];
                 var moimSchedule = moimData['moimSchedule'];
-                List<dynamic> oonYoungJin = moimData['oonYoungJin'];
+                List<dynamic> oonYoungJin = moimData.get('oonYoungJin');
                 var moimCategory = moimData['moimCategory'];
+                var moimLeader = moimData['moimLeader'];
+                Map<String, dynamic> Leader = moimData.get("moimLeader");
+                Map<String, dynamic> oonYoungJinList =
+                    moimData.get("oonYoungJinList");
 
                 print("=======================================");
-
+                print("모임리더 : $moimLeader");
+                print("모임리더1 : ${Leader.keys}");
+                print("모임리더1 : ${Leader.values}");
+                print("모임리더 : $oonYoungJinList");
+                print("모임리더1 : ${oonYoungJinList.keys}");
+                print("모임리더1 : ${oonYoungJinList.values}");
                 print("모임이름 : $moimTitle");
                 print("모임사진 : $moimImage");
                 print("모임소개 : $moimIntroduction");
@@ -249,19 +256,6 @@ class _AboutGroupPageState extends State<AboutGroupPage> {
                                           MaterialPageRoute(
                                             builder: (context) => GroupInfoPage(
                                               moimID: moimID,
-                                              moimCategory: moimCategory,
-                                              moimTitle: moimTitle,
-                                              boardId: boardId,
-                                              createdTime: createdTime,
-                                              moimIntroduction:
-                                                  moimIntroduction,
-                                              moimJangID: moimJangID,
-                                              moimLimit: moimLimit,
-                                              moimLocation: moimLocation,
-                                              moimMembers: moimMembers,
-                                              moimPoint: moimPoint,
-                                              moimSchedule: moimSchedule,
-                                              oonYoungJin: oonYoungJin,
                                             ),
                                           ), // 모임 정보 페이지로 이동
                                         );
