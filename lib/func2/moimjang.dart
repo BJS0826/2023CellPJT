@@ -118,7 +118,7 @@ class _MoimJangModiState extends State<MoimJangModi> {
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                child: Text("취소"),
+                child: Text("종료"),
               ),
             ],
           )
@@ -136,8 +136,12 @@ class _MoimJangModiState extends State<MoimJangModi> {
           content: Text('정말 모임장을 바꾸시겠습니까?'),
           actions: <Widget>[
             TextButton(
-              onPressed: () {
-                updateLeaderField();
+              onPressed: () async {
+                await updateLeaderField();
+                await ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                  content: Text("모임장 양도 완료"),
+                  backgroundColor: Colors.blue,
+                ));
                 Navigator.of(context).pop();
               },
               child: Text('모임장양도'),

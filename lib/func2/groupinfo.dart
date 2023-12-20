@@ -22,17 +22,27 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
   FirebaseFirestore firestore = FirebaseFirestore.instance;
   User? user;
 
+  TextEditingController moimTitleController = TextEditingController();
+  TextEditingController moimIntroductionController = TextEditingController();
+  String selectedCatrgory = "";
+  String selectedLocation = "";
+
   @override
   initState() {
+    super.initState();
     // TODO: implement initState
+    user = _auth.currentUser;
   }
 
   bool management = false;
+  Future<DocumentSnapshot> fetchData() async {
+    return firestore.collection("Moim").doc(widget.moimID).get();
+  }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<DocumentSnapshot>(
-      future: firestore.collection("Moim").doc(widget.moimID).get(),
+      future: fetchData(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Scaffold(
@@ -71,10 +81,6 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
               Map<String, dynamic> Leader = moimData.get("moimLeader");
               Map<String, dynamic> oonYoungJinList =
                   moimData.get("oonYoungJinList");
-              String name = Leader.keys.first;
-
-              String _selectedItem = moimData.get('moimCategory');
-              String _selectedLocation = moimData.get('moimLocation');
 
               print("=======================================");
               print("모임리더 : $moimLeader");
@@ -99,9 +105,69 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
 
               print("=======================================");
 
-              for (int i = 0; i < oonYoungJinList.length; i++) {
-                if (user?.uid == oonYoungJinList[i] || user?.uid == MoimJang) {
+              //////
+
+              for (String id in oonYoungJinList.values) {
+                if (user?.uid == id || user?.uid == Leader.keys.first) {
                   management = true;
+                }
+              }
+
+              //////
+              Future<ScaffoldFeatureController<SnackBar, SnackBarClosedReason>>
+                  moimUpdate() async {
+                DocumentSnapshot updatePrepare =
+                    await firestore.collection("Moim").doc(widget.moimID).get();
+                try {
+                  if (updatePrepare.exists) {
+                    // 현재 문서의 데이터 가져오기
+                    Map<String, dynamic> currentData =
+                        updatePrepare.data() as Map<String, dynamic>;
+
+                    // 업데이트할 필드 및 값을 기존 데이터에 추가 또는 수정
+                    if (moimTitleController.text.isNotEmpty) {
+                      currentData['moimTitle'] = moimTitleController.text;
+                    }
+                    if (moimIntroductionController.text.isNotEmpty) {
+                      currentData['moimIntroduction'] =
+                          moimIntroductionController.text;
+                    }
+
+                    if (selectedCatrgory.length > 1) {
+                      currentData['moimCategory'] = selectedCatrgory;
+                    }
+                    if (selectedLocation.length > 1) {
+                      currentData['moimLocation'] = selectedLocation;
+                    }
+
+                    // 문서 업데이트
+                    await firestore
+                        .collection('Moim')
+                        .doc(widget.moimID)
+                        .update(currentData);
+                    setState(() {
+                      selectedCatrgory = "";
+                      selectedLocation = "";
+                    });
+
+                    return ScaffoldMessenger.of(context)
+                        .showSnackBar(const SnackBar(
+                      content: Text("수정완료"),
+                      backgroundColor: Colors.blue,
+                    ));
+                  } else {
+                    return ScaffoldMessenger.of(context)
+                        .showSnackBar(const SnackBar(
+                      content: Text("수정실패"),
+                      backgroundColor: Colors.blue,
+                    ));
+                  }
+                } catch (e) {
+                  return ScaffoldMessenger.of(context)
+                      .showSnackBar(const SnackBar(
+                    content: Text("수정실패"),
+                    backgroundColor: Colors.blue,
+                  ));
                 }
               }
 
@@ -146,14 +212,26 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
                               ElevatedButton(
-                                  onPressed: () {
-                                    for (int i = 0;
-                                        i < oonYoungJinList.length;
-                                        i++) {
-                                      if (user?.uid == oonYoungJin[i] ||
-                                          user?.uid == MoimJang) {
-                                        print("ㅋㅋㅋㅋ");
+                                  onPressed: () async {
+                                    bool isUserInList = false;
+                                    print(oonYoungJinList.values);
+
+                                    for (String id in oonYoungJinList.values) {
+                                      if (user?.uid == id) {
+                                        isUserInList = true;
+
+                                        break;
                                       }
+                                    }
+
+                                    if (isUserInList) {
+                                      moimUpdate();
+                                    } else {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(const SnackBar(
+                                        content: Text("수정하기 실패"),
+                                        backgroundColor: Colors.blue,
+                                      ));
                                     }
                                   },
                                   child: Text("수정하기")),
@@ -181,6 +259,7 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
                           // 2번째 열 - '구로 독서 모임 1기'
                           ListTile(
                             title: TextFormField(
+                              controller: moimTitleController,
                               decoration: InputDecoration(
                                   labelText: moimTitle,
                                   border: OutlineInputBorder(
@@ -249,6 +328,7 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
                           // 4번째 열 - '독서 습관을 만드는 모임'
                           ListTile(
                             title: TextFormField(
+                              controller: moimIntroductionController,
                               decoration: InputDecoration(
                                   labelText: moimIntroduction,
                                   border: OutlineInputBorder(
@@ -273,27 +353,35 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
                           ListTile(
                             title: Padding(
                               padding: const EdgeInsets.only(left: 8.0),
-                              child: DropdownButton<String>(
-                                value: _selectedItem,
-                                onChanged: (String? newValue) {
-                                  setState(() {
-                                    _selectedItem = newValue!;
-                                  });
-                                },
-                                items: <String>[
-                                  '독서',
-                                  '경제',
-                                  '예술',
-                                  '음악',
-                                  "운동",
-                                  "직무",
-                                  "자유",
-                                ].map<DropdownMenuItem<String>>((String value) {
-                                  return DropdownMenuItem<String>(
-                                    value: value,
-                                    child: Text(value),
-                                  );
-                                }).toList(),
+                              child: Row(
+                                children: [
+                                  DropdownButton<String>(
+                                    value: moimCategory.toString(),
+                                    onChanged: (String? newValue) {
+                                      setState(() {
+                                        selectedCatrgory = newValue!;
+                                      });
+                                    },
+                                    items: <String>[
+                                      '독서',
+                                      '경제',
+                                      '예술',
+                                      '음악',
+                                      "운동",
+                                      "직무",
+                                      "자유",
+                                    ].map<DropdownMenuItem<String>>(
+                                        (String value) {
+                                      return DropdownMenuItem<String>(
+                                        value: value,
+                                        child: Text(value),
+                                      );
+                                    }).toList(),
+                                  ),
+                                  if (selectedCatrgory.length > 1)
+                                    Text("  == 선택 ==>    "),
+                                  Text(selectedCatrgory),
+                                ],
                               ),
                             ),
                           ),
@@ -316,27 +404,35 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
                           ListTile(
                             title: Padding(
                               padding: const EdgeInsets.only(left: 8.0),
-                              child: DropdownButton<String>(
-                                value: _selectedLocation,
-                                onChanged: (String? newValue) {
-                                  setState(() {
-                                    _selectedLocation = newValue!;
-                                  });
-                                },
-                                items: <String>[
-                                  '서울',
-                                  '경기 남부',
-                                  '경기 북부',
-                                  '인천',
-                                  "부산",
-                                  "그 외",
-                                  "온라인"
-                                ].map<DropdownMenuItem<String>>((String value) {
-                                  return DropdownMenuItem<String>(
-                                    value: value,
-                                    child: Text(value),
-                                  );
-                                }).toList(),
+                              child: Row(
+                                children: [
+                                  DropdownButton<String>(
+                                    value: moimLocation.toString(),
+                                    onChanged: (String? newValue) {
+                                      setState(() {
+                                        selectedLocation = newValue!;
+                                      });
+                                    },
+                                    items: <String>[
+                                      '서울',
+                                      '경기 남부',
+                                      '경기 북부',
+                                      '인천',
+                                      "부산",
+                                      "그 외",
+                                      "온라인"
+                                    ].map<DropdownMenuItem<String>>(
+                                        (String value) {
+                                      return DropdownMenuItem<String>(
+                                        value: value,
+                                        child: Text(value),
+                                      );
+                                    }).toList(),
+                                  ),
+                                  if (selectedLocation.length > 1)
+                                    Text("  == 선택 ==>     "),
+                                  Text(selectedLocation),
+                                ],
                               ),
                             ),
                           ),
