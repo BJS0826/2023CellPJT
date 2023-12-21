@@ -98,14 +98,28 @@ class _MembersPageState extends State<MembersPage> {
                   ///
                   List<Future<DocumentSnapshot<Map<String, dynamic>>>>
                       datasList = [];
+                  Map<String, dynamic> moimData1 = moimData["oonYoungJinList"];
 
-                  for (String id in moimData["moimMembers"]) {
+                  for (String id in moimData1.keys) {
                     Future<DocumentSnapshot<Map<String, dynamic>>> data =
                         firestore.collection("user").doc(id).get();
                     datasList.add(data);
                     print('맴버ID : $id');
                     print('맴버데이터 : $data');
                     print('맴버데이터리스트 : $datasList');
+                  }
+
+                  List<Future<DocumentSnapshot<Map<String, dynamic>>>>
+                      moimMembers = [];
+                  Map<String, dynamic> moimMembers1 = moimData["moimMembers"];
+
+                  for (String id in moimMembers1.keys) {
+                    Future<DocumentSnapshot<Map<String, dynamic>>> data =
+                        firestore.collection("user").doc(id).get();
+                    moimMembers.add(data);
+                    print('맴버ID : $id');
+                    print('맴버데이터 : $data');
+                    print('맴버데이터리스트 : $moimMembers');
                   }
 
                   Future.wait(datasList).then(
@@ -115,12 +129,11 @@ class _MembersPageState extends State<MembersPage> {
                     // 에러 처리
                     print('에러 발생: $error');
                   });
-                  return ListView(
-                    padding: EdgeInsets.all(16.0),
+                  return Column(
                     children: [
                       SizedBox(
                         width: double.infinity,
-                        height: 150,
+                        height: 130,
                         child: FutureBuilder<DocumentSnapshot>(
                             future: firestore
                                 .collection("user")
@@ -195,79 +208,263 @@ class _MembersPageState extends State<MembersPage> {
                               }
                             }),
                       ),
+                      ListTile(
+                        title: Padding(
+                          padding: const EdgeInsets.only(left: 8.0),
+                          child: Text(
+                            '운영진',
+                            style: TextStyle(
+                              fontSize: 20.0,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ),
+                      ),
                       SizedBox(
                         width: double.infinity,
-                        height: 150,
+                        height: 170,
                         child: FutureBuilder<List<DocumentSnapshot>>(
-                            future: Future.wait(datasList),
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return Center(
-                                    child: CircularProgressIndicator());
+                          future: Future.wait(datasList),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return Center(child: CircularProgressIndicator());
+                            } else {
+                              if (snapshot.hasError) {
+                                return Text('데이터를 불러올 수 없습니다.');
                               } else {
-                                if (snapshot.hasError) {
-                                  return Text('데이터를 불러올 수 없습니다.');
-                                } else {
-                                  if (snapshot.hasData &&
-                                      snapshot.data != null) {
-                                    var userMemberDatas = snapshot.data;
+                                if (snapshot.hasData && snapshot.data != null) {
+                                  var userMemberDatas = snapshot.data;
 
-                                    return ListView.builder(
-                                      itemCount: 1,
-                                      itemBuilder: (context, index) {
-                                        return Column(
-                                          children: [
-                                            ListTile(
-                                              title: Padding(
-                                                padding: const EdgeInsets.only(
-                                                    left: 8.0),
-                                                child: Text(
-                                                  '운영진',
-                                                  style: TextStyle(
-                                                    fontSize: 20.0,
-                                                    fontWeight: FontWeight.bold,
-                                                    color: Colors.black,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                            // 모임장 정보 표시
-                                            ListTile(
-                                              leading: CircleAvatar(
+                                  return ListView.builder(
+                                    itemCount: userMemberDatas!.length,
+                                    itemBuilder: (context, index) {
+                                      String userName =
+                                          userMemberDatas[index]['userName'];
+                                      String picked_image =
+                                          userMemberDatas[index]
+                                              ['picked_image'];
+                                      String managementId =
+                                          userMemberDatas[index].id;
+
+                                      return Column(
+                                        children: [
+                                          // 모임장 정보 표시
+                                          ListTile(
+                                            leading: CircleAvatar(
                                                 radius: 20.0,
-                                                backgroundColor: Colors.amber,
-                                              ),
-                                              title: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    moimJangName,
-                                                    style: TextStyle(
-                                                      fontSize: 18.0,
+                                                backgroundImage:
+                                                    NetworkImage(picked_image)),
+                                            title: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      userName,
+                                                      style: TextStyle(
+                                                        fontSize: 18.0,
+                                                      ),
                                                     ),
-                                                  ),
-                                                  Text('모임장'),
-                                                ],
-                                              ),
+                                                    Text("운영진"),
+                                                  ],
+                                                ),
+                                                ElevatedButton(
+                                                    onPressed: () async {
+                                                      if (moimJang.keys
+                                                          .toString()
+                                                          .contains(
+                                                              managementId)) {
+                                                        ScaffoldMessenger.of(
+                                                                context)
+                                                            .showSnackBar(
+                                                                const SnackBar(
+                                                          content: Text(
+                                                              "모임장은 운영진에서 해제 할 수 없습니다"),
+                                                          backgroundColor:
+                                                              Colors.blue,
+                                                        ));
+                                                      } else {
+                                                        await firestore
+                                                            .collection("Moim")
+                                                            .doc(widget.moimID)
+                                                            .update({
+                                                          'oonYoungJinList.$managementId':
+                                                              FieldValue
+                                                                  .delete(),
+                                                        }).then((value) {
+                                                          // 삭제 성공 시 동작
+                                                          setState(() {});
+                                                          print(
+                                                              '문서의 userMembers 맵에서 id 삭제 완료');
+                                                        }).catchError((error) {
+                                                          // 오류 발생 시 동작
+                                                          print(
+                                                              '삭제 중 오류 발생: $error');
+                                                        });
+                                                      }
+                                                    },
+                                                    child: Text('운영진해제'))
+                                              ],
                                             ),
-                                          ],
-                                        );
-                                      },
-                                    );
-                                  }
-                                  return Expanded(
-                                      child: Center(
-                                          child: CircularProgressIndicator()));
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
                                 }
+                                return Expanded(
+                                    child: Center(
+                                        child: CircularProgressIndicator()));
                               }
-                            }),
+                            }
+                          },
+                        ),
                       ),
-                      Container(
-                        height: 600,
-                        width: double.infinity,
-                        color: Colors.amber,
+                      ListTile(
+                        title: Padding(
+                          padding: const EdgeInsets.only(left: 8.0),
+                          child: Text(
+                            '모임원',
+                            style: TextStyle(
+                              fontSize: 20.0,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ),
+                      ),
+                      //     // 나머지 모임원 목록 표시
+                      Expanded(
+                        child: FutureBuilder<List<DocumentSnapshot>>(
+                          future: Future.wait(moimMembers),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return Center(child: CircularProgressIndicator());
+                            } else {
+                              if (snapshot.hasError) {
+                                return Text('데이터를 불러올 수 없습니다.');
+                              } else {
+                                if (snapshot.hasData && snapshot.data != null) {
+                                  var userMemberDatas2 = snapshot.data;
+
+                                  return ListView.builder(
+                                    itemCount: userMemberDatas2!.length,
+                                    itemBuilder: (context, index) {
+                                      String userName =
+                                          userMemberDatas2[index]['userName'];
+                                      String picked_image =
+                                          userMemberDatas2[index]
+                                              ['picked_image'];
+                                      String id = userMemberDatas2[index].id;
+
+                                      return Column(
+                                        children: [
+                                          // 모임장 정보 표시
+                                          ListTile(
+                                            leading: CircleAvatar(
+                                                radius: 20.0,
+                                                backgroundImage:
+                                                    NetworkImage(picked_image)),
+                                            title: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      userName,
+                                                      style: TextStyle(
+                                                        fontSize: 18.0,
+                                                      ),
+                                                    ),
+                                                    Text("모임원"),
+                                                  ],
+                                                ),
+                                                Row(
+                                                  children: [
+                                                    ElevatedButton(
+                                                        onPressed: () async {
+                                                          try {
+                                                            // userMembers 컬렉션에 새로운 문서 추가
+                                                            await firestore
+                                                                .collection(
+                                                                    'Moim')
+                                                                .doc(widget
+                                                                    .moimID)
+                                                                .update({
+                                                              'oonYoungJinList.$id':
+                                                                  userName,
+                                                              // 여기에 다른 필드도 추가할 수 있습니다.
+                                                            });
+                                                            setState(() {});
+
+                                                            print(
+                                                                '사용자를 userMembers 컬렉션에 추가했습니다.');
+                                                          } catch (e) {
+                                                            print(
+                                                                '사용자 추가 중 오류가 발생했습니다: $e');
+                                                          }
+                                                        },
+                                                        child: Text("운영진임명")),
+                                                    if (management)
+                                                      ElevatedButton(
+                                                        onPressed: () {
+                                                          CollectionReference
+                                                              userMemberCollection =
+                                                              FirebaseFirestore
+                                                                  .instance
+                                                                  .collection(
+                                                                      'Moim');
+
+                                                          // 해당 문서의 userMembers 맵에서 id 삭제
+                                                          userMemberCollection
+                                                              .doc(
+                                                                  widget.moimID)
+                                                              .update({
+                                                            'moimMembers.$id':
+                                                                FieldValue
+                                                                    .delete(),
+                                                          }).then((value) {
+                                                            // 삭제 성공 시 동작
+                                                            setState(() {});
+                                                            print(
+                                                                '문서의 userMembers 맵에서 id 삭제 완료');
+                                                          }).catchError(
+                                                                  (error) {
+                                                            // 오류 발생 시 동작
+                                                            print(
+                                                                '삭제 중 오류 발생: $error');
+                                                          });
+                                                        },
+                                                        child: Text("강퇴"),
+                                                      ),
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                }
+                                return Expanded(
+                                    child: Center(
+                                        child: CircularProgressIndicator()));
+                              }
+                            }
+                          },
+                        ),
                       ),
                     ],
                   );
@@ -278,43 +475,6 @@ class _MembersPageState extends State<MembersPage> {
               }
             }
           },
-        )
-
-        //     ListTile(
-        //       title: Padding(
-        //         padding: const EdgeInsets.only(left: 8.0),
-        //         child: Text(
-        //           '모임원',
-        //           style: TextStyle(
-        //             fontSize: 20.0,
-        //             fontWeight: FontWeight.bold,
-        //             color: Colors.black,
-        //           ),
-        //         ),
-        //       ),
-        //     ),
-        //     // 나머지 모임원 목록 표시
-        //     ListTile(
-        //       leading: CircleAvatar(
-        //         radius: 20.0,
-        //         backgroundImage: AssetImage('assets/profile_image.jpg'),
-        //       ),
-        //       title: Column(
-        //         crossAxisAlignment: CrossAxisAlignment.start,
-        //         children: [
-        //           Text('배예은'),
-        //           Text('모임원'),
-        //         ],
-        //       ),
-        //     ),
-        //     // 필요에 따라 모임원을 추가하십시오.
-        //     // ...
-
-        //     SizedBox(height: 16.0),
-        //     // 나머지 페이지 내용 추가
-        //     // ...
-        //   ],
-        // ),
-        );
+        ));
   }
 }

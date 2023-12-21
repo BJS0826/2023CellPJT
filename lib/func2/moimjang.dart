@@ -109,9 +109,34 @@ class _MoimJangModiState extends State<MoimJangModi> {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               ElevatedButton(
-                onPressed: () {
-                  showAlertDialog(context);
-                },
+                onPressed: () => showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: Text('알림'),
+                      content: Text('정말 모임장을 바꾸시겠습니까?'),
+                      actions: <Widget>[
+                        TextButton(
+                          onPressed: () async {
+                            await updateLeaderField();
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(const SnackBar(
+                              content: Text("모임장 양도 완료"),
+                              backgroundColor: Colors.blue,
+                            ));
+                          },
+                          child: Text('모임장양도'),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          child: Text('취소'),
+                        ),
+                      ],
+                    );
+                  },
+                ),
                 child: Text("모임장양도"),
               ),
               ElevatedButton(
@@ -138,7 +163,7 @@ class _MoimJangModiState extends State<MoimJangModi> {
             TextButton(
               onPressed: () async {
                 await updateLeaderField();
-                await ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                   content: Text("모임장 양도 완료"),
                   backgroundColor: Colors.blue,
                 ));
