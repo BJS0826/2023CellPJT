@@ -212,8 +212,6 @@ class _MembersPageState extends State<MembersPage> {
                                   if (snapshot.hasData &&
                                       snapshot.data != null) {
                                     var userMemberDatas = snapshot.data;
-                                    print(
-                                        '유저첫번째 ${userMemberDatas.}');
 
                                     return ListView.builder(
                                       itemCount: 1,
