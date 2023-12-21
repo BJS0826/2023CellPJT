@@ -84,11 +84,11 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
 
               print("=======================================");
               print("모임리더 : $moimLeader");
-              print("모임리더1 : ${Leader.keys}");
-              print("모임리더1 : ${Leader.values}");
-              print("모임리더 : $oonYoungJinList");
-              print("모임리더1 : ${oonYoungJinList.keys}");
-              print("모임리더1 : ${oonYoungJinList.values}");
+              print("모임리더ID : ${Leader.keys}");
+              print("모임리더이름 : ${Leader.values.first}");
+              print("운영진 : $oonYoungJinList");
+              print("운영진IDs : ${oonYoungJinList.keys}");
+              print("운영진이름 : ${oonYoungJinList.values}");
               print("모임이름 : $moimTitle");
               print("모임사진 : $moimImage");
               print("모임소개 : $moimIntroduction");
@@ -107,8 +107,8 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
 
               //////
 
-              for (String id in oonYoungJinList.values) {
-                if (user?.uid == id || user?.uid == Leader.keys.first) {
+              for (String id in oonYoungJinList.keys) {
+                if (user?.uid == id || user?.uid == Leader.values.first) {
                   management = true;
                 }
               }
@@ -306,7 +306,7 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
                                     child: Align(
                                         alignment: Alignment.centerLeft,
                                         child: Text(
-                                          Leader.keys.first,
+                                          Leader.values.first,
                                           style: TextStyle(fontSize: 20),
                                         )))),
                           ),
@@ -585,7 +585,7 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
                                     width: 2.0),
                                 borderRadius: BorderRadius.circular(8.0),
                               ),
-                              child: Text('$MoimJang'),
+                              child: Text('${Leader.values.first}'),
                             ),
                           ),
                           // 3번째 열 - '모임소개'
