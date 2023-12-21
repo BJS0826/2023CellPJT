@@ -224,7 +224,8 @@ class _AboutGroupPageState extends State<AboutGroupPage> {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => MembersPage(),
+                                        builder: (context) =>
+                                            MembersPage(moimID: moimID),
                                       ), // 모임원 페이지로 이동
                                     );
                                   },

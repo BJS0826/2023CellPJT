@@ -33,8 +33,8 @@ class _MoimJangModiState extends State<MoimJangModi> {
         String foundKey = "";
 
         map.forEach((key, value) {
-          if (key == targetValue) {
-            foundKey = value;
+          if (value == targetValue) {
+            foundKey = key;
           }
         });
 
@@ -50,7 +50,7 @@ class _MoimJangModiState extends State<MoimJangModi> {
 
       // 업데이트할 데이터 생성
       Map<String, dynamic> updatedData = {
-        'moimLeader': {name: keys},
+        'moimLeader': {keys: name},
       };
 
       // Moim 문서의 'leader' 필드 업데이트
@@ -66,7 +66,7 @@ class _MoimJangModiState extends State<MoimJangModi> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    name = widget.Leader.keys.first;
+    name = widget.Leader.values.first;
   }
 
   @override
@@ -94,9 +94,9 @@ class _MoimJangModiState extends State<MoimJangModi> {
                     name = newValue!;
                   });
                 },
-                items: widget.oonYoungJinList.keys
+                items: widget.oonYoungJinList.values
                     .toList()
-                    .map<DropdownMenuItem<String>>((String value) {
+                    .map<DropdownMenuItem<String>>((dynamic value) {
                   return DropdownMenuItem<String>(
                     value: value,
                     child: Text(value),
