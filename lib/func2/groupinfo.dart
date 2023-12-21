@@ -66,44 +66,16 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
               var moimTitle = moimData['moimTitle'];
               var moimIntroduction = moimData['moimIntroduction'];
               var moimLocation = moimData['moimLocation'];
-              var moimPoint = moimData['moimPoint'];
-              var boardId = moimData['boardID'];
-              var createdTime = moimData['createdTime'];
-              var moimJangID = moimData['moimJang'];
-              var moimImage = moimData['moimImage'];
 
               var moimLimit = moimData['moimLimit'];
-              List<dynamic> moimMembers = moimData['moimMembers'];
-              var moimSchedule = moimData['moimSchedule'];
-              List<dynamic> oonYoungJin = moimData.get('oonYoungJin');
+
               var moimCategory = moimData['moimCategory'];
-              var moimLeader = moimData['moimLeader'];
+              Map<String, dynamic> moimMembers = moimData["moimMembers"];
+              var moimMember = moimMembers.values;
               Map<String, dynamic> Leader = moimData.get("moimLeader");
+
               Map<String, dynamic> oonYoungJinList =
                   moimData.get("oonYoungJinList");
-
-              print("=======================================");
-              print("모임리더 : $moimLeader");
-              print("모임리더ID : ${Leader.keys}");
-              print("모임리더이름 : ${Leader.values.first}");
-              print("운영진 : $oonYoungJinList");
-              print("운영진IDs : ${oonYoungJinList.keys}");
-              print("운영진이름 : ${oonYoungJinList.values}");
-              print("모임이름 : $moimTitle");
-              print("모임사진 : $moimImage");
-              print("모임소개 : $moimIntroduction");
-              print("모임장소 : $moimLocation");
-              print("모임포인트 : $moimPoint");
-              print("모임게시판ID : $boardId");
-              print("모임만든날짜 : $createdTime");
-              print("모임장 ID : $moimJangID");
-              print("모임인원 : $moimLimit");
-              print("모임맴버들 : $moimMembers");
-              print("정모스케쥴 : $moimSchedule");
-              print("모임카테고리 : $moimCategory");
-              print("운영진 ID 리스트 : $oonYoungJin");
-
-              print("=======================================");
 
               //////
 
@@ -280,35 +252,52 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
                             ),
                           ),
                           // 2번째 열 - '구로 독서 모임 1기'
+                          // ListTile(
+                          //   title: Container(
+                          //       padding: EdgeInsets.all(8.0),
+                          //       margin: EdgeInsets.only(
+                          //           left: 8.0,
+                          //           right: 8.0,
+                          //           top: 4.0,
+                          //           bottom: 4.0), // 여백 조절 및 모서리 둥글게
+
+                          //       child: TextButton(
+                          //           onPressed: () async {
+                          //             await Navigator.push(
+                          //                 context,
+                          //                 MaterialPageRoute(
+                          //                     builder: (context) =>
+                          //                         MoimJangModi(
+                          //                           moimID: widget.moimID,
+                          //                           Leader: Leader,
+                          //                           oonYoungJinList:
+                          //                               oonYoungJinList,
+                          //                         )));
+                          //             setState(() {});
+                          //           },
+                          //           child: Align(
+                          //               alignment: Alignment.centerLeft,
+                          //               child: Text(
+                          //                 Leader.values.first,
+                          //                 style: TextStyle(fontSize: 20),
+                          //               )))),
+                          // ),
                           ListTile(
                             title: Container(
-                                padding: EdgeInsets.all(8.0),
-                                margin: EdgeInsets.only(
-                                    left: 8.0,
-                                    right: 8.0,
-                                    top: 4.0,
-                                    bottom: 4.0), // 여백 조절 및 모서리 둥글게
-
-                                child: TextButton(
-                                    onPressed: () async {
-                                      await Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  MoimJangModi(
-                                                    moimID: widget.moimID,
-                                                    Leader: Leader,
-                                                    oonYoungJinList:
-                                                        oonYoungJinList,
-                                                  )));
-                                      setState(() {});
-                                    },
-                                    child: Align(
-                                        alignment: Alignment.centerLeft,
-                                        child: Text(
-                                          Leader.values.first,
-                                          style: TextStyle(fontSize: 20),
-                                        )))),
+                              padding: EdgeInsets.all(8.0),
+                              margin: EdgeInsets.only(
+                                  left: 8.0,
+                                  right: 8.0,
+                                  top: 4.0,
+                                  bottom: 4.0), // 여백 조절 및 모서리 둥글게
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                    color: Colors.grey.withOpacity(0.2),
+                                    width: 2.0),
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              child: Text('${Leader.values.first}'),
+                            ),
                           ),
 
                           // 3번째 열 - '모임소개'

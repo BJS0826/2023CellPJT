@@ -1,4 +1,5 @@
 import 'package:cellpjt/func2/board.dart';
+import 'package:cellpjt/func2/chat_screen.dart';
 import 'package:cellpjt/func2/groupinfo.dart';
 import 'package:cellpjt/func2/meetingschedule.dart';
 import 'package:cellpjt/func2/meetingsettings.dart';
@@ -79,41 +80,18 @@ class _AboutGroupPageState extends State<AboutGroupPage> {
                 var moimPoint = moimData['moimPoint'];
                 var boardId = moimData['boardID'];
                 var createdTime = moimData['createdTime'];
-                var moimJangID = moimData['moimJang'];
+
                 var moimImage = moimData['moimImage'];
 
                 var moimLimit = moimData['moimLimit'];
-                List<dynamic> moimMembers = moimData['moimMembers'];
+
                 var moimSchedule = moimData['moimSchedule'];
-                List<dynamic> oonYoungJin = moimData.get('oonYoungJin');
+
                 var moimCategory = moimData['moimCategory'];
                 var moimLeader = moimData['moimLeader'];
                 Map<String, dynamic> Leader = moimData.get("moimLeader");
                 Map<String, dynamic> oonYoungJinList =
                     moimData.get("oonYoungJinList");
-
-                print("=======================================");
-                print("모임리더 : $moimLeader");
-                print("모임리더1 : ${Leader.keys}");
-                print("모임리더1 : ${Leader.values}");
-                print("모임리더 : $oonYoungJinList");
-                print("모임리더1 : ${oonYoungJinList.keys}");
-                print("모임리더1 : ${oonYoungJinList.values}");
-                print("모임이름 : $moimTitle");
-                print("모임사진 : $moimImage");
-                print("모임소개 : $moimIntroduction");
-                print("모임장소 : $moimLocation");
-                print("모임포인트 : $moimPoint");
-                print("모임게시판ID : $boardId");
-                print("모임만든날짜 : $createdTime");
-                print("모임장 ID : $moimJangID");
-                print("모임인원 : $moimLimit");
-                print("모임맴버들 : $moimMembers");
-                print("정모스케쥴 : $moimSchedule");
-                print("모임카테고리 : $moimCategory");
-                print("운영진 ID 리스트 : $oonYoungJin");
-
-                print("=======================================");
 
                 return Scaffold(
                   appBar: AppBar(
@@ -380,9 +358,11 @@ class _AboutGroupPageState extends State<AboutGroupPage> {
                                 child: Column(
                                   children: [
                                     ElevatedButton(
-                                      onPressed: () {
-                                        // 단체채팅 페이지 연결
-                                      },
+                                      onPressed: () => Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => ChatScreen(),
+                                          )),
                                       style: ElevatedButton.styleFrom(
                                         primary: Colors.white,
                                         shape: RoundedRectangleBorder(

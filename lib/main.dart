@@ -37,7 +37,7 @@ class _IntroPageState extends State<IntroPage> {
   @override
   void initState() {
     super.initState();
-    // 1.5초 후에 첫 화면으로 이동
+    // 2초 후에 첫 화면으로 이동
     Future.delayed(Duration(seconds: 2), () {
       Navigator.pushReplacement(
         context,
@@ -81,6 +81,8 @@ class _IntroPageState extends State<IntroPage> {
 }
 
 class MyAppBody extends StatelessWidget {
+  const MyAppBody({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
