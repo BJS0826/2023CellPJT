@@ -274,42 +274,89 @@ class _MembersPageState extends State<MembersPage> {
                                                     Text("운영진"),
                                                   ],
                                                 ),
-                                                ElevatedButton(
-                                                    onPressed: () async {
-                                                      if (moimJang.keys
-                                                          .toString()
-                                                          .contains(
-                                                              managementId)) {
-                                                        ScaffoldMessenger.of(
-                                                                context)
-                                                            .showSnackBar(
-                                                                const SnackBar(
-                                                          content: Text(
-                                                              "모임장은 운영진에서 해제 할 수 없습니다"),
-                                                          backgroundColor:
-                                                              Colors.blue,
-                                                        ));
-                                                      } else {
-                                                        await firestore
-                                                            .collection("Moim")
-                                                            .doc(widget.moimID)
-                                                            .update({
-                                                          'oonYoungJinList.$managementId':
-                                                              FieldValue
-                                                                  .delete(),
-                                                        }).then((value) {
-                                                          // 삭제 성공 시 동작
-                                                          setState(() {});
-                                                          print(
-                                                              '문서의 userMembers 맵에서 id 삭제 완료');
-                                                        }).catchError((error) {
-                                                          // 오류 발생 시 동작
-                                                          print(
-                                                              '삭제 중 오류 발생: $error');
-                                                        });
-                                                      }
-                                                    },
-                                                    child: Text('운영진해제'))
+                                                Row(
+                                                  children: [
+                                                    ElevatedButton(
+                                                        onPressed: () async {
+                                                          try {
+                                                            // 업데이트할 Moim 문서의 레퍼런스 가져오기
+                                                            DocumentReference
+                                                                moimRef =
+                                                                FirebaseFirestore
+                                                                    .instance
+                                                                    .collection(
+                                                                        'Moim')
+                                                                    .doc(widget
+                                                                        .moimID);
+
+                                                            Map<String, dynamic>
+                                                                updatedLeaderData =
+                                                                {
+                                                              managementId:
+                                                                  userName
+                                                            };
+
+                                                            // Moim 문서의 'moimJang' 필드 업데이트
+                                                            Map<String, dynamic>
+                                                                dataToUpdate = {
+                                                              'moimLeader':
+                                                                  updatedLeaderData,
+                                                            };
+
+                                                            // Moim 문서의 'moimLeader' 필드 업데이트
+                                                            await moimRef.update(
+                                                                dataToUpdate);
+
+                                                            print(
+                                                                'Moim 문서의 "moimLeade" 필드가 업데이트되었습니다.');
+                                                            setState(() {});
+                                                          } catch (e) {
+                                                            print(
+                                                                'Moim 문서 "moimLeade" 필드 업데이트 오류: $e');
+                                                          }
+                                                        },
+                                                        child: Text('모임장양도')),
+                                                    ElevatedButton(
+                                                        onPressed: () async {
+                                                          if (moimJang.keys
+                                                              .toString()
+                                                              .contains(
+                                                                  managementId)) {
+                                                            ScaffoldMessenger
+                                                                    .of(context)
+                                                                .showSnackBar(
+                                                                    const SnackBar(
+                                                              content: Text(
+                                                                  "모임장은 운영진에서 해제 할 수 없습니다"),
+                                                              backgroundColor:
+                                                                  Colors.blue,
+                                                            ));
+                                                          } else {
+                                                            await firestore
+                                                                .collection(
+                                                                    "Moim")
+                                                                .doc(widget
+                                                                    .moimID)
+                                                                .update({
+                                                              'oonYoungJinList.$managementId':
+                                                                  FieldValue
+                                                                      .delete(),
+                                                            }).then((value) {
+                                                              // 삭제 성공 시 동작
+                                                              setState(() {});
+                                                              print(
+                                                                  '문서의 userMembers 맵에서 id 삭제 완료');
+                                                            }).catchError(
+                                                                    (error) {
+                                                              // 오류 발생 시 동작
+                                                              print(
+                                                                  '삭제 중 오류 발생: $error');
+                                                            });
+                                                          }
+                                                        },
+                                                        child: Text('운영진해제')),
+                                                  ],
+                                                ),
                                               ],
                                             ),
                                           ),
