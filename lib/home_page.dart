@@ -76,6 +76,6 @@ class _HomePageState extends State<HomePage> {
 List<Widget> _widgetList = <Widget>[
   MainFeedPage(),
   GroupListPage(),
-  ChattingPage(),
+  const ChattingPage(),
   ProfilePage(),
 ];
