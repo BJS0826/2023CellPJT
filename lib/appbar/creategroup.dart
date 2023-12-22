@@ -37,6 +37,7 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
     List<String> moimList = [];
     List<dynamic> moimSchedule = [];
     List<String> oonYoungJin = [];
+    String userName = "";
 
     if (user != null) {
       uid = user.uid;
@@ -62,29 +63,52 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
           ));
         }
 
-        String randomeID = generateRandomId(10);
+        String randomeID = generateRandomId(20);
+
         Reference ref = _storage.ref().child('Moim_images/$randomeID.jpg');
         await ref.putFile(_image!);
         String imageURL = await ref.getDownloadURL();
 
-        await FirebaseFirestore.instance.collection('Moim').doc(randomeID).set({
-          'moimTitle': groupTitle,
-          'moimLocation': selectedLocation,
-          "moimIntroduction": groupIntroduction,
-          'moimLimit': moimLimit,
-          'createdTime': now,
-          "moimJang": uid,
-          "oonYoungJin": oonYoungJin,
-          "moimPoint": point,
-          "boardID": DateTime.now().millisecondsSinceEpoch,
-          "moimMembers": moimList,
-          "moimSchedule": moimSchedule,
-          "moimCategory": selectedInterest,
-          "moimImage": imageURL
-        });
+        if (imageURL.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text("모임 사진을 추가해 주세요"),
+            backgroundColor: Colors.blue,
+          ));
+        } else {
+          FirebaseFirestore firestore = FirebaseFirestore.instance;
+          DocumentSnapshot userDoc =
+              await firestore.collection('user').doc(user!.uid).get();
+          userName = userDoc.get('userName');
 
-        print('모임이 성공적으로 추가되었습니다!');
-        Navigator.pop(context);
+          Map<String, dynamic> moimLeaderData = {uid: userName};
+
+          await FirebaseFirestore.instance
+              .collection('Moim')
+              .doc(randomeID)
+              .set({
+            'moimTitle': groupTitle,
+            'moimLocation': selectedLocation,
+            "moimIntroduction": groupIntroduction,
+            'moimLimit': moimLimit,
+            'createdTime': now,
+            "moimLeader": moimLeaderData,
+            "oonYoungJinList": moimLeaderData,
+            "moimPoint": point,
+            "boardID": DateTime.now().millisecondsSinceEpoch,
+            "moimMembers": moimLeaderData,
+            "moimSchedule": moimSchedule,
+            "moimCategory": selectedInterest,
+            "moimImage": imageURL
+          });
+
+          await FirebaseFirestore.instance.collection('user').doc(uid).update({
+            'myMoimList.$randomeID': now,
+            // 여기에 다른 필드도 추가할 수 있습니다.
+          });
+
+          print('모임이 성공적으로 추가되었습니다!');
+          Navigator.pop(context);
+        }
         // 추가되었으니 필요한 다른 작업을 수행하거나 화면을 닫을 수 있습니다.
       } catch (e) {
         print('모임 추가 중 오류가 발생했습니다: $e');

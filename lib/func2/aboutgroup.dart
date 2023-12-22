@@ -20,6 +20,7 @@ class _AboutGroupPageState extends State<AboutGroupPage> {
   late bool management = false;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   late Future<DocumentSnapshot<Map<String, dynamic>>> userData;
+  Map<String, dynamic>? moimID1;
   String? moimID;
   User? user;
 
@@ -42,7 +43,8 @@ class _AboutGroupPageState extends State<AboutGroupPage> {
         print("USER DATA !!!! :  $userData");
 
         final check = snapshot["myMoimList"];
-        moimID = snapshot.data()?['myMoimList'][0];
+        moimID1 = snapshot.data()!['myMoimList'];
+        moimID = moimID1!.keys.first.toString();
         //moimID = snapshot["myMoimList"][0];
         print("MoimID !!!!! :  $check");
         print("MoimID !!!!! :  $moimID");
@@ -618,6 +620,7 @@ class _AboutGroupPageState extends State<AboutGroupPage> {
                 );
               } else {
                 return Scaffold(
+                  appBar: AppBar(),
                   body: Center(
                     child: Text('이 모임은 현재 접근이 제한되었습니다'),
                   ),
