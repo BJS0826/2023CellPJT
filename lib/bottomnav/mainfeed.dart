@@ -322,9 +322,3 @@ class _MainFeedPageState extends State<MainFeedPage> {
     );
   }
 }
-
-void main() {
-  runApp(MaterialApp(
-    home: MainFeedPage(),
-  ));
-}
