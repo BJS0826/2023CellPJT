@@ -72,7 +72,7 @@ class _BoardPostPageState extends State<BoardPostPage> {
         });
       },
       style: ElevatedButton.styleFrom(
-        primary: selectedCategory == text ? Colors.yellow : Colors.white,
+        primary: selectedCategory == text ? Color(0xFFFF6F61) : Colors.white,
         onPrimary: Colors.black,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10.0),
