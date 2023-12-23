@@ -329,7 +329,8 @@ class _AboutGroupPageState extends State<AboutGroupPage> {
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
-                                            builder: (context) => BoardPage(),
+                                            builder: (context) =>
+                                                BoardPage(moimID: moimID),
                                           ), // 정모 일정 페이지로 이동
                                         );
                                       },
