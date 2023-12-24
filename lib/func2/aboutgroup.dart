@@ -287,7 +287,9 @@ class _AboutGroupPageState extends State<AboutGroupPage> {
                                           context,
                                           MaterialPageRoute(
                                             builder: (context) =>
-                                                MeetingSchedulePage(),
+                                                MeetingSchedulePage(
+                                              moimID: moimID,
+                                            ),
                                           ), // 정모 일정 페이지로 이동
                                         );
                                       },
