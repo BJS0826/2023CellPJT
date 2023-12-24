@@ -509,6 +509,8 @@ class _MembersPageState extends State<MembersPage> {
                                         userMemberDatas2[index]['picked_image'];
                                     String id = userMemberDatas2[index].id;
 
+                                    oonYoungJinList.keys.contains(id);
+
                                     return Column(
                                       children: [
                                         ListTile(
