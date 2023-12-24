@@ -547,7 +547,7 @@ class _MembersPageState extends State<MembersPage> {
                                                           return AlertDialog(
                                                             title: Text('임명'),
                                                             content: Text(
-                                                                '사용자를 userMembers 컬렉션에 추가하시겠습니까?'),
+                                                                '사용자를 모임장으로 임명 하시겠습니까?'),
                                                             actions: <Widget>[
                                                               TextButton(
                                                                 onPressed: () {
@@ -591,7 +591,7 @@ class _MembersPageState extends State<MembersPage> {
                                                           });
                                                           setState(() {});
                                                           print(
-                                                              '사용자를 userMembers 컬렉션에 추가했습니다.');
+                                                              '사용자를 모임장으로 임명 했습니다.');
                                                         } catch (e) {
                                                           print(
                                                               '사용자 추가 중 오류가 발생했습니다: $e');
@@ -624,7 +624,7 @@ class _MembersPageState extends State<MembersPage> {
                                                             return AlertDialog(
                                                               title: Text('강퇴'),
                                                               content: Text(
-                                                                  '사용자를 userMembers 컬렉션에서 삭제하시겠습니까?'),
+                                                                  '사용자를 강퇴 하시겠습니까?'),
                                                               actions: <Widget>[
                                                                 TextButton(
                                                                   onPressed:
@@ -659,24 +659,60 @@ class _MembersPageState extends State<MembersPage> {
                                                         if (confirmExpulsion ==
                                                             true) {
                                                           try {
-                                                            await firestore
-                                                                .collection(
-                                                                    'Moim')
-                                                                .doc(widget
-                                                                    .moimID)
-                                                                .update({
-                                                              'moimMembers.$id':
-                                                                  FieldValue
-                                                                      .delete(),
-                                                            }).then((value) {
-                                                              setState(() {});
-                                                              print(
-                                                                  '문서의 userMembers 맵에서 id 삭제 완료');
-                                                            }).catchError(
-                                                                    (error) {
-                                                              print(
-                                                                  '삭제 중 오류 발생: $error');
-                                                            });
+                                                            bool
+                                                                isManagementMember =
+                                                                oonYoungJinList
+                                                                    .keys
+                                                                    .toString()
+                                                                    .contains(
+                                                                        id);
+                                                            if (isManagementMember) {
+                                                              showDialog(
+                                                                context:
+                                                                    context,
+                                                                builder:
+                                                                    (BuildContext
+                                                                        context) {
+                                                                  return AlertDialog(
+                                                                    title: Text(
+                                                                        '강퇴 실패'),
+                                                                    content: Text(
+                                                                        '운영진은 강퇴할 수 없습니다.'),
+                                                                    actions: <Widget>[
+                                                                      TextButton(
+                                                                        onPressed:
+                                                                            () {
+                                                                          Navigator.of(context)
+                                                                              .pop();
+                                                                        },
+                                                                        child: Text(
+                                                                            '확인'),
+                                                                      ),
+                                                                    ],
+                                                                  );
+                                                                },
+                                                              );
+                                                            } else {
+                                                              // 운영진이 아닌 경우 강퇴 진행
+                                                              await firestore
+                                                                  .collection(
+                                                                      'Moim')
+                                                                  .doc(widget
+                                                                      .moimID)
+                                                                  .update({
+                                                                'moimMembers.$id':
+                                                                    FieldValue
+                                                                        .delete(),
+                                                              }).then((value) {
+                                                                setState(() {});
+                                                                print(
+                                                                    '사용자를 강퇴 했습니다.');
+                                                              }).catchError(
+                                                                      (error) {
+                                                                print(
+                                                                    '삭제 중 오류 발생: $error');
+                                                              });
+                                                            }
                                                           } catch (e) {
                                                             print('강퇴 오류: $e');
                                                           }
@@ -695,7 +731,7 @@ class _MembersPageState extends State<MembersPage> {
                                                       ),
                                                     ),
                                                 ],
-                                              ),
+                                              )
                                             ],
                                           ),
                                         ),

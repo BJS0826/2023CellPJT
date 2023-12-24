@@ -12,6 +12,7 @@ class GroupListPage extends StatefulWidget {
 
 class _GroupListPageState extends State<GroupListPage> {
   PageController _pageController = PageController(viewportFraction: 0.8);
+  String selectedCategory = ''; // 선택된 카테고리를 저장하는 변수
 
   @override
   Widget build(BuildContext context) {
@@ -123,7 +124,6 @@ class _GroupListPageState extends State<GroupListPage> {
           ),
         ),
         SizedBox(height: 16.0),
-        // 추천 정모 리스트 뷰 부분
         Flexible(
           child: Padding(
             padding: const EdgeInsets.only(left: 16.0),
@@ -136,11 +136,30 @@ class _GroupListPageState extends State<GroupListPage> {
             ),
           ),
         ),
-
         SizedBox(height: 16.0),
         buildCategoryButtons(),
-
-        buildGroupList(),
+        Expanded(
+          child: FutureBuilder<List<DocumentSnapshot>>(
+            future: _fetchGroupsData(selectedCategory),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return CircularProgressIndicator();
+              } else {
+                if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                } else {
+                  if (snapshot.hasData && snapshot.data != null) {
+                    var groupsData = snapshot.data! as List<DocumentSnapshot>;
+                    print('Number of groups: ${groupsData.length}'); // 디버그용 로그
+                    return buildGroupList(groupsData);
+                  } else {
+                    return Text('No data found');
+                  }
+                }
+              }
+            },
+          ),
+        )
       ],
     );
   }
@@ -164,47 +183,15 @@ class _GroupListPageState extends State<GroupListPage> {
     );
   }
 
-  Widget buildGroupList() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12.0),
-      child: Expanded(
-        child: ListView.builder(
-          shrinkWrap: true,
-          itemCount: 3,
-          itemBuilder: (context, index) {
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 16.0),
-              child: Card(
-                elevation: 2.0,
-                color: Colors.white,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    ListTile(
-                      leading: CircleAvatar(
-                        radius: 20.0,
-                        backgroundImage: AssetImage('assets/profile_image.jpg'),
-                      ),
-                      title: Text('모임명 $index'),
-                      subtitle: Text('모임 설명 $index',
-                          style: TextStyle(color: Colors.grey)),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        ),
-      ),
-    );
-  }
-
   Widget _buildCategoryButton(String text, String imagePath) {
     return Column(
       children: [
         ElevatedButton(
           onPressed: () {
-            // 해당 카테고리로 이동하는 로직 추가
+            setState(() {
+              selectedCategory = text;
+              print('Selected category: $selectedCategory');
+            });
           },
           style: ElevatedButton.styleFrom(
             primary: Colors.white,
@@ -230,6 +217,66 @@ class _GroupListPageState extends State<GroupListPage> {
       ],
     );
   }
+
+  Future<List<DocumentSnapshot>> _fetchGroupsData(String category) async {
+    QuerySnapshot querySnapshot;
+
+    if (category.isEmpty || category == '전체보기') {
+      // 전체보기인 경우 모든 데이터 가져오기
+      querySnapshot = await FirebaseFirestore.instance.collection('Moim').get();
+    } else {
+      // 특정 카테고리에 대한 데이터 가져오기
+      querySnapshot = await FirebaseFirestore.instance
+          .collection('Moim')
+          .where('category', isEqualTo: category)
+          .get();
+    }
+
+    // 디버깅을 위해 쿼리 결과를 출력
+    querySnapshot.docs.forEach((doc) {
+      print('Document ID: ${doc.id}, Data: ${doc.data()}');
+    });
+
+    return querySnapshot.docs;
+  }
+
+  Widget buildGroupList(List<DocumentSnapshot> groupsData) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+      child: Expanded(
+        child: ListView.builder(
+          shrinkWrap: true,
+          itemCount: groupsData.length,
+          itemBuilder: (context, index) {
+            var group = groupsData[index].data() as Map<String, dynamic>? ??
+                {}; // 수정 부분
+
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 16.0),
+              child: Card(
+                elevation: 2.0,
+                color: Colors.white,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    ListTile(
+                      leading: CircleAvatar(
+                        radius: 20.0,
+                        backgroundImage: AssetImage('assets/profile_image.jpg'),
+                      ),
+                      title: Text(group['moimTitle']),
+                      subtitle: Text(group['moimIntroduction'],
+                          style: TextStyle(color: Colors.grey)),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
 }
 
 class AllGroupsPage extends StatefulWidget {
@@ -240,48 +287,6 @@ class AllGroupsPage extends StatefulWidget {
 }
 
 class _AllGroupsPageState extends State<AllGroupsPage> {
-  List<String> moimIds = [];
-  List<DocumentSnapshot<Map<String, dynamic>>> datasList = [];
-
-  // Future<List<DocumentSnapshot<Map<String, dynamic>>>> getIds() async {
-  //   FirebaseFirestore.instance
-  //       .collection('Moim') // 'moims'는 Moim 컬렉션명입니다. 본인의 컬렉션명에 맞게 변경해주세요.
-  //       .get()
-  //       .then((QuerySnapshot querySnapshot) {
-  //     if (querySnapshot != null) {
-  //       querySnapshot.docs.forEach((doc) {
-  //         moimIds.add(doc.id);
-  //       });
-
-  //       // 모든 Moim 문서의 ID를 출력하거나 사용할 수 있습니다.
-  //       moimIds.forEach((id) async {
-  //         DocumentSnapshot<Map<String, dynamic>> data =
-  //             await FirebaseFirestore.instance.collection("Moim").doc(id).get();
-  //         datasList.add(data);
-  //       });
-  //     } else {
-  //       print('No Moim documents found.');
-  //     }
-  //   }).catchError((error) {
-  //     // 오류 처리
-  //     print("Error getting Moim documents: $error");
-  //   });
-
-  //   return datasList;
-  // }
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    // TODO: implement dispose
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -292,21 +297,19 @@ class _AllGroupsPageState extends State<AllGroupsPage> {
         future: FirebaseFirestore.instance.collection('Moim').get(),
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return CircularProgressIndicator(); // 데이터 로딩 중에 보여줄 UI
+            return CircularProgressIndicator();
           } else {
             if (snapshot.hasError) {
               return Text('Error: ${snapshot.error}');
             } else {
               if (snapshot.hasData) {
-                List<Map<String, dynamic>> moimsData =
-                    []; // Moim 문서 데이터를 저장할 리스트
-
-                // 모든 Moim 문서의 ID와 데이터를 가져와 리스트에 추가
+                List<Map<String, dynamic>> moimsData = [];
                 snapshot.data!.docs.forEach((doc) {
                   String docId = doc.id;
                   Map<String, dynamic> moimData =
                       doc.data() as Map<String, dynamic>;
-                  moimData['id'] = docId; // 각 문서의 ID를 데이터에 추가
+                  moimData['id'] = docId;
+
                   moimsData.add(moimData);
                 });
 
@@ -316,8 +319,6 @@ class _AllGroupsPageState extends State<AllGroupsPage> {
                     Map<String, dynamic> moim = moimsData[index];
                     String moimID = moim['id'];
 
-                    // 여기서 각 Moim 데이터를 사용하여 UI를 업데이트합니다.
-                    // 예를 들어, 각 Moim의 title을 리스트로 출력하는 방식으로 보여줍니다.
                     return ListTile(
                       title: Text('${moim['moimTitle']}'),
                       subtitle: Text('모임소개: ${moim['moimIntroduction']}'),

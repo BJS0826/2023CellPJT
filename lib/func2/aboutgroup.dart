@@ -603,29 +603,41 @@ class _AboutGroupPageState extends State<AboutGroupPage> {
                             physics: NeverScrollableScrollPhysics(),
                             children: List.generate(
                               4,
-                              (index) => Card(
-                                elevation: 2.0,
-                                child: Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.stretch,
-                                  children: [
-                                    Image.asset(
-                                      'assets/post_image.jpg',
-                                      fit: BoxFit.cover,
-                                      height: 100.0,
+                              (index) => InkWell(
+                                onTap: () {
+                                  // 피드를 클릭했을 때 상세 내용 페이지로 이동
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          FeedDetailPage(feedIndex: index),
                                     ),
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Text(
-                                        '피드 제목',
-                                        style: TextStyle(fontSize: 16.0),
+                                  );
+                                },
+                                child: Card(
+                                  elevation: 2.0,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.stretch,
+                                    children: [
+                                      Image.asset(
+                                        'assets/post_image.jpg',
+                                        fit: BoxFit.cover,
+                                        height: 100.0,
                                       ),
-                                    ),
-                                  ],
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Text(
+                                          '피드 제목 ${index + 1}',
+                                          style: TextStyle(fontSize: 16.0),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
+                          )
                         ],
                       ),
                     ],
@@ -642,5 +654,42 @@ class _AboutGroupPageState extends State<AboutGroupPage> {
             }
           }
         });
+  }
+}
+
+class FeedDetailPage extends StatelessWidget {
+  final int feedIndex;
+
+  const FeedDetailPage({Key? key, required this.feedIndex}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('피드 상세 내용'),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(
+              'assets/post_image.jpg',
+              fit: BoxFit.cover,
+              height: 200.0,
+            ),
+            SizedBox(height: 16.0),
+            Text(
+              '피드 제목 ${feedIndex + 1}',
+              style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 16.0),
+            Text(
+              '피드 내용이 여기에 들어갑니다.',
+              style: TextStyle(fontSize: 16.0),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
