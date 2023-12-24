@@ -263,32 +263,32 @@ class _AllGroupsPageState extends State<AllGroupsPage> {
   List<String> moimIds = [];
   List<DocumentSnapshot<Map<String, dynamic>>> datasList = [];
 
-  Future<List<DocumentSnapshot<Map<String, dynamic>>>> getIds() async {
-    FirebaseFirestore.instance
-        .collection('Moim') // 'moims'는 Moim 컬렉션명입니다. 본인의 컬렉션명에 맞게 변경해주세요.
-        .get()
-        .then((QuerySnapshot querySnapshot) {
-      if (querySnapshot != null) {
-        querySnapshot.docs.forEach((doc) {
-          moimIds.add(doc.id);
-        });
+  // Future<List<DocumentSnapshot<Map<String, dynamic>>>> getIds() async {
+  //   FirebaseFirestore.instance
+  //       .collection('Moim') // 'moims'는 Moim 컬렉션명입니다. 본인의 컬렉션명에 맞게 변경해주세요.
+  //       .get()
+  //       .then((QuerySnapshot querySnapshot) {
+  //     if (querySnapshot != null) {
+  //       querySnapshot.docs.forEach((doc) {
+  //         moimIds.add(doc.id);
+  //       });
 
-        // 모든 Moim 문서의 ID를 출력하거나 사용할 수 있습니다.
-        moimIds.forEach((id) async {
-          DocumentSnapshot<Map<String, dynamic>> data =
-              await FirebaseFirestore.instance.collection("Moim").doc(id).get();
-          datasList.add(data);
-        });
-      } else {
-        print('No Moim documents found.');
-      }
-    }).catchError((error) {
-      // 오류 처리
-      print("Error getting Moim documents: $error");
-    });
+  //       // 모든 Moim 문서의 ID를 출력하거나 사용할 수 있습니다.
+  //       moimIds.forEach((id) async {
+  //         DocumentSnapshot<Map<String, dynamic>> data =
+  //             await FirebaseFirestore.instance.collection("Moim").doc(id).get();
+  //         datasList.add(data);
+  //       });
+  //     } else {
+  //       print('No Moim documents found.');
+  //     }
+  //   }).catchError((error) {
+  //     // 오류 처리
+  //     print("Error getting Moim documents: $error");
+  //   });
 
-    return datasList;
-  }
+  //   return datasList;
+  // }
 
   @override
   void initState() {

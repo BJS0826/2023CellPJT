@@ -186,9 +186,9 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
                               ElevatedButton(
                                   onPressed: () async {
                                     bool isUserInList = false;
-                                    print(oonYoungJinList.values);
+                                    print(oonYoungJinList.keys);
 
-                                    for (String id in oonYoungJinList.values) {
+                                    for (String id in oonYoungJinList.keys) {
                                       if (user?.uid == id) {
                                         isUserInList = true;
 

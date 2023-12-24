@@ -247,16 +247,17 @@ class _BoardPageState extends State<BoardPage> {
 
   Widget _buildRoundedButton(BuildContext context) {
     return ElevatedButton(
-      onPressed: () {
+      onPressed: () async {
         // 특정 페이지로 이동하는 코드를 여기에 추가
-        Navigator.push(
+        await Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => BoardPostPage(
-                moimID:
-                    widget.moimID), // YourDestinationPage는 이동하고자 하는 페이지의 클래스명
+            builder: (context) {
+              return BoardPostPage(moimID: widget.moimID);
+            }, // YourDestinationPage는 이동하고자 하는 페이지의 클래스명
           ),
         );
+        setState(() {});
       },
       style: ElevatedButton.styleFrom(
         primary: Color(0xFFFF6F61), // 코랄 핑크 색상
