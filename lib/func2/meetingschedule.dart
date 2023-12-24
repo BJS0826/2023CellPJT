@@ -19,20 +19,56 @@ class _MeetingSchedulePageState extends State<MeetingSchedulePage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth auth = FirebaseAuth.instance;
   User? user;
-
-  late final ValueNotifier<List<Event>> _selectedEvents;
+  Map<DateTime, List<Event>> _events = {};
 
   @override
   void initState() {
     super.initState();
     user = auth.currentUser;
     _selectedDay = _focusedDay;
-    _selectedEvents = ValueNotifier(_getEventsForDay(_selectedDay!));
+
+    _getEventsFromFirebase();
   }
 
+  Future<void> _getEventsFromFirebase() async {
+    _events = {};
+    try {
+      // Firebase Firestore에서 이벤트 데이터 가져오기
+      QuerySnapshot<Map<String, dynamic>> querySnapshot =
+          await FirebaseFirestore.instance
+              .collection('totalMoimSchedule')
+              .doc(widget.moimID)
+              .collection("moimSchedule")
+              .get();
+
+      querySnapshot.docs.forEach((doc) {
+        Timestamp predate = doc.data()['date'];
+        DateTime date = DateTime.utc(predate.toDate().year,
+            predate.toDate().month, predate.toDate().day);
+        // 혹은 DateTime.utc(predate.toDate().year, predate.toDate().month, predate.toDate().day);
+
+        var moimContent = (doc.data() as Map)['moimContent'];
+        var moimLocation = (doc.data() as Map)['moimLocation'];
+        var moimTitle = (doc.data() as Map)['moimTitle'];
+
+        // 가져온 데이터를 TableCalendar에 맞게 변환하여 _events 맵에 추가
+        _events[date] ??= [];
+
+        _events[date]!.add(Event(moimTitle, moimContent, moimLocation));
+      });
+
+      setState(() {});
+    } catch (e) {
+      print('Firebase 데이터 가져오기 오류: $e');
+    }
+  }
+
+  // 이벤트를 추가하는 함수
+
   @override
-  void dipose() {
+  void dispose() {
     super.dispose();
+    _events.clear();
   }
 
   void _onDaySelected(DateTime selectedDay, DateTime focusedDay) {
@@ -40,14 +76,12 @@ class _MeetingSchedulePageState extends State<MeetingSchedulePage> {
       setState(() {
         _selectedDay = selectedDay;
         _focusedDay = focusedDay;
-        _selectedEvents.value = _getEventsForDay(selectedDay);
       });
     }
   }
 
   List<Event> _getEventsForDay(DateTime day) {
-    Map<DateTime, List<Event>> events = {};
-    return events[day] ?? [];
+    return _events[day] ?? [];
   }
 
   @override
@@ -74,7 +108,7 @@ class _MeetingSchedulePageState extends State<MeetingSchedulePage> {
               _focusedDay = focusedDay;
             },
             onDayLongPressed: (selectedDay, focusedDay) async {
-              return await showModalBottomSheet(
+              await showModalBottomSheet(
                 context: context,
                 isDismissible: true,
                 builder: (context) => AddBottomSheet(
@@ -82,10 +116,14 @@ class _MeetingSchedulePageState extends State<MeetingSchedulePage> {
                     focusedDay: _focusedDay,
                     selectedDay: _selectedDay),
               );
+              setState(() {
+                _getEventsFromFirebase();
+              });
             },
             calendarStyle: const CalendarStyle(
               outsideDaysVisible: true,
             ),
+
             headerStyle: HeaderStyle(
               formatButtonVisible: false,
               titleCentered: true,
@@ -97,11 +135,23 @@ class _MeetingSchedulePageState extends State<MeetingSchedulePage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                ElevatedButton(onPressed: () {}, child: Text("전체모임보기")),
-                ElevatedButton(onPressed: () {}, child: Text("전체정모보기")),
+                ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        _getEventsFromFirebase();
+                      });
+                    },
+                    child: Text("전체모임보기")),
+                ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        _getEventsFromFirebase();
+                      });
+                    },
+                    child: Text("전체정모보기")),
                 ElevatedButton(
                     onPressed: () async {
-                      return await showModalBottomSheet(
+                      await showModalBottomSheet(
                         context: context,
                         isDismissible: true,
                         builder: (context) => AddBottomSheet(
@@ -109,6 +159,9 @@ class _MeetingSchedulePageState extends State<MeetingSchedulePage> {
                             focusedDay: _focusedDay,
                             selectedDay: _selectedDay),
                       );
+                      setState(() {
+                        _getEventsFromFirebase();
+                      });
                     },
                     child: Text("정모만들기")),
               ],
@@ -333,7 +386,9 @@ class MeetingItem extends StatelessWidget {
 
 class Event {
   final String title;
-  Event(this.title);
+  final String content;
+  final String location;
+  Event(this.title, this.content, this.location);
 }
 
 class AddBottomSheet extends StatefulWidget {
@@ -349,26 +404,30 @@ class AddBottomSheet extends StatefulWidget {
 
 class _AddBottomSheetState extends State<AddBottomSheet> {
   final _titleController = TextEditingController();
-  final _numberController = TextEditingController();
   final _locationController = TextEditingController();
+  final _contentController = TextEditingController();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   late String newDAY;
-  late String selectedTime;
+  String selectedTime = "";
   DateTime now = DateTime.now();
   late int _selectedValue;
+  late DateTime selectedDate;
+  TimeOfDay? picked;
 
   @override
   void initState() {
     super.initState();
 
-    selectedTime = DateTime.now().toString().substring(10, 19);
     _selectedValue = 6;
+    //picked = TimeOfDay.fromDateTime(DateTime(2000, 00, 00));
 
     if (widget.selectedDay == null) {
       newDAY = "";
+      selectedDate = DateTime.now();
     } else {
       newDAY = widget.selectedDay.toString().substring(0, 10);
+      selectedDate = widget.selectedDay!;
     }
   }
 
@@ -401,18 +460,19 @@ class _AddBottomSheetState extends State<AddBottomSheet> {
     if (picked != null && picked != newDAY) {
       setState(() {
         newDAY = picked.toString().substring(0, 10);
+        selectedDate = picked;
       });
     }
   }
 
   Future<void> _selectTime(BuildContext context) async {
-    final TimeOfDay? picked = await showTimePicker(
+    picked = (await showTimePicker(
       context: context,
       initialTime: TimeOfDay(hour: now.hour, minute: now.minute),
-    );
+    ))!;
     if (picked != null && picked != selectedTime) {
       setState(() {
-        selectedTime = picked.format(context).toString();
+        selectedTime = picked!.format(context).toString();
       });
     }
   }
@@ -447,69 +507,114 @@ class _AddBottomSheetState extends State<AddBottomSheet> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-        child: Container(
-      height: MediaQuery.of(context).size.height / 2,
-      decoration: BoxDecoration(color: Colors.blue[100]),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              ElevatedButton(
-                  onPressed: () {
-                    _selectDate(context);
-                  },
-                  child: Text('날짜선택 ${newDAY}')),
-              ElevatedButton(
-                  onPressed: () {
-                    _selectTime(context);
-                  },
-                  child: Text('시간선택 $selectedTime')),
-            ],
-          ),
-          ElevatedButton(
-            onPressed: () {
-              _showNumberPickerModal(context);
-            },
-            child: Text(
-              '제한인원: $_selectedValue',
-              style: TextStyle(fontSize: 20.0),
+        child: Scaffold(
+      body: Container(
+        color: Colors.transparent,
+        height: MediaQuery.of(context).size.height / 2,
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                ElevatedButton(
+                    onPressed: () {
+                      _selectDate(context);
+                    },
+                    child: Text('날짜선택 ${newDAY}')),
+                ElevatedButton(
+                    onPressed: () {
+                      _selectTime(context);
+                    },
+                    child: Text('시간선택 $selectedTime')),
+              ],
             ),
-          ),
-          TextField(
-            controller: _titleController,
-            maxLines: 1,
-            decoration: InputDecoration(
-              labelText: "제한인원(숫자만 입력하세요)",
+            ElevatedButton(
+              onPressed: () {
+                _showNumberPickerModal(context);
+              },
+              child: Text(
+                '제한인원: $_selectedValue',
+                style: TextStyle(fontSize: 20.0),
+              ),
             ),
-          ),
-          TextField(
-            controller: _locationController,
-            maxLines: 2,
-            decoration: InputDecoration(
-              labelText: "정모장소",
+            TextField(
+              controller: _locationController,
+              decoration: InputDecoration(
+                labelText: "정모장소",
+              ),
             ),
-          ),
-          TextField(
-            controller: _titleController,
-            maxLines: 5,
-            decoration: InputDecoration(
-              labelText: "정모명",
+            TextField(
+              controller: _titleController,
+              decoration: InputDecoration(
+                labelText: "정모명",
+              ),
             ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              ElevatedButton(onPressed: () {}, child: Text("정모만들기")),
-              ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: Text("취소하기")),
-            ],
-          ),
-        ],
+            TextField(
+              controller: _contentController,
+              maxLines: 5,
+              decoration: InputDecoration(
+                labelText: "정모내용",
+              ),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                ElevatedButton(
+                    onPressed: () async {
+                      if (picked != null) {
+                        _addEventToFirebase(
+                            selectedDate,
+                            picked!,
+                            _titleController.text,
+                            _locationController.text,
+                            _contentController.text);
+                        Navigator.of(context).pop();
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("시간을 선택해 주세요"),
+                            backgroundColor: Colors.blue,
+                          ),
+                        );
+                      }
+                    },
+                    child: Text("정모만들기")),
+                ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    child: Text("취소하기")),
+              ],
+            ),
+          ],
+        ),
       ),
     ));
+  }
+
+  Future<void> _addEventToFirebase(DateTime selectedDate, TimeOfDay picked,
+      String title, String location, String content) async {
+    DateTime combinedDateTime = DateTime(selectedDate.year, selectedDate.month,
+        selectedDate.day, picked.hour, picked.minute);
+    Timestamp timestamp = Timestamp.fromDate(combinedDateTime);
+    print('모임명 : $title');
+    print('모임장소 : $location');
+    print('타임스템프 : $timestamp');
+    try {
+      await _firestore
+          .collection('totalMoimSchedule')
+          .doc(widget.moimID)
+          .collection("moimSchedule")
+          .add({
+        'date': timestamp,
+        'moimLocation': location,
+        'moimTitle': title,
+        'moimContent': content,
+      });
+
+      // 이벤트를 Firebase에 추가한 후, 화면을 다시 빌드하여 새로운 이벤트를 표시
+    } catch (e) {
+      print('Firebase에 이벤트 추가 오류: $e');
+    }
   }
 }
