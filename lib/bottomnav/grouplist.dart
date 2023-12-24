@@ -85,6 +85,7 @@ class _GroupListPageState extends State<GroupListPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        SizedBox(height: 16.0),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Row(
@@ -114,7 +115,7 @@ class _GroupListPageState extends State<GroupListPage> {
                   ),
                 ),
                 child: Text(
-                  '전체 보기',
+                  '전체보기',
                   style: TextStyle(color: Colors.white),
                 ),
               ),
@@ -122,57 +123,33 @@ class _GroupListPageState extends State<GroupListPage> {
           ),
         ),
         SizedBox(height: 16.0),
-        buildRecommendedGroups(),
-        SizedBox(height: 16.0),
-        buildCategoryButtons(),
-        SizedBox(height: 16.0),
-        buildGroupList(),
-      ],
-    );
-  }
-
-  Widget buildRecommendedGroups() {
-    return Container(
-      height: 200.0,
-      child: PageView.builder(
-        controller: _pageController,
-        itemCount: 5,
-        itemBuilder: (context, index) {
-          return Padding(
-            padding: const EdgeInsets.only(left: 8.0),
-            child: Card(
-              elevation: 2.0,
-              color: Colors.white,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Expanded(
-                    child: Image.asset(
-                      'assets/meeting_image.jpg',
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      '추천 정모 $index',
-                      style: TextStyle(fontSize: 14.0),
-                    ),
-                  ),
-                ],
+        // 추천 정모 리스트 뷰 부분
+        Flexible(
+          child: Padding(
+            padding: const EdgeInsets.only(left: 16.0),
+            child: Text(
+              '모임 찾기',
+              style: TextStyle(
+                fontSize: 20.0,
+                fontWeight: FontWeight.bold,
               ),
             ),
-          );
-        },
-      ),
+          ),
+        ),
+
+        SizedBox(height: 16.0),
+        buildCategoryButtons(),
+
+        buildGroupList(),
+      ],
     );
   }
 
   Widget buildCategoryButtons() {
     return GridView.count(
       crossAxisCount: 4,
-      mainAxisSpacing: 8.0,
-      crossAxisSpacing: 8.0,
+      mainAxisSpacing: 0.0,
+      crossAxisSpacing: 0.0,
       shrinkWrap: true,
       children: [
         _buildCategoryButton('전체보기', 'assets/category_all.png'),
@@ -182,39 +159,42 @@ class _GroupListPageState extends State<GroupListPage> {
         _buildCategoryButton('음악', 'assets/category_music.png'),
         _buildCategoryButton('운동', 'assets/category_sports.png'),
         _buildCategoryButton('직무', 'assets/category_career.png'),
-        _buildCategoryButton('자유', 'assets/category_free.png'),
+        _buildCategoryButton('기타', 'assets/category_free.png'),
       ],
     );
   }
 
   Widget buildGroupList() {
-    return Expanded(
-      child: ListView.builder(
-        shrinkWrap: true,
-        itemCount: 5,
-        itemBuilder: (context, index) {
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 16.0),
-            child: Card(
-              elevation: 2.0,
-              color: Colors.white,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  ListTile(
-                    leading: CircleAvatar(
-                      radius: 20.0,
-                      backgroundImage: AssetImage('assets/profile_image.jpg'),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+      child: Expanded(
+        child: ListView.builder(
+          shrinkWrap: true,
+          itemCount: 3,
+          itemBuilder: (context, index) {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 16.0),
+              child: Card(
+                elevation: 2.0,
+                color: Colors.white,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    ListTile(
+                      leading: CircleAvatar(
+                        radius: 20.0,
+                        backgroundImage: AssetImage('assets/profile_image.jpg'),
+                      ),
+                      title: Text('모임명 $index'),
+                      subtitle: Text('모임 설명 $index',
+                          style: TextStyle(color: Colors.grey)),
                     ),
-                    title: Text('모임명 $index'),
-                    subtitle: Text('모임 설명 $index',
-                        style: TextStyle(color: Colors.grey)),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }
@@ -242,7 +222,7 @@ class _GroupListPageState extends State<GroupListPage> {
             ),
           ),
         ),
-        SizedBox(height: 8.0),
+        SizedBox(height: 2.0),
         Text(
           text,
           style: TextStyle(fontSize: 12.0),
@@ -306,7 +286,7 @@ class _AllGroupsPageState extends State<AllGroupsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('전체 모임'),
+        title: Text('전체 정모'),
       ),
       body: FutureBuilder<QuerySnapshot>(
         future: FirebaseFirestore.instance.collection('Moim').get(),

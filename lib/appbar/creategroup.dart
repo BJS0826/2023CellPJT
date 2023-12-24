@@ -296,7 +296,7 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
                     child: Row(
                       children: [
                         Text(
-                          '관심사 :   ',
+                          '카테고리 :   ',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16.0,
@@ -316,7 +316,7 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
                             '음악',
                             '운동',
                             '직무',
-                            '자유'
+                            '기타'
                           ].map<DropdownMenuItem<String>>((String value) {
                             return DropdownMenuItem<String>(
                               value: value,
