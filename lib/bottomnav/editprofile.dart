@@ -47,144 +47,68 @@ class _EditProfilePageState extends State<EditProfilePage> {
       body: ListView(
         padding: EdgeInsets.all(16.0),
         children: [
-          // 1. 이름 입력 필드
-          ListTile(
-            title: Padding(
-              padding: const EdgeInsets.only(left: 8.0),
-              child: Text(
-                '이름',
-                style: TextStyle(
-                  fontSize: 20.0,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-              ),
-            ),
-          ),
-          // 2. 이름을 입력하는 텍스트 필드
-          Container(
-            padding: EdgeInsets.all(8.0),
-            margin: EdgeInsets.only(
-              left: 8.0,
-              right: 8.0,
-              top: 4.0,
-              bottom: 4.0,
-            ),
-            child: TextFormField(
-              decoration: InputDecoration(
-                hintText: '이름을 입력하세요.',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-              ),
-            ),
-          ),
-
-          // 3. 소개글 입력 필드
-          ListTile(
-            title: Padding(
-              padding: const EdgeInsets.only(left: 8.0),
-              child: Text(
-                '소개글',
-                style: TextStyle(
-                  fontSize: 20.0,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-              ),
-            ),
-          ),
-          // 4. 소개글을 입력하는 텍스트 필드
-          Container(
-            padding: EdgeInsets.all(8.0),
-            margin: EdgeInsets.only(
-              left: 8.0,
-              right: 8.0,
-              top: 4.0,
-              bottom: 4.0,
-            ),
-            child: TextFormField(
-              maxLines: null, // 세로로 길어질 수 있도록
-              decoration: InputDecoration(
-                hintText: '소개글을 입력하세요.',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-              ),
-            ),
-          ),
-
-          // 5. 관심사 선택
-          ListTile(
-            title: Padding(
-              padding: const EdgeInsets.only(left: 8.0),
-              child: Text(
-                '관심사',
-                style: TextStyle(
-                  fontSize: 20.0,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-              ),
-            ),
-          ),
-          // 6. 관심사 선택 버튼 (이미지와 함께)
-          _buildInterestButtons(),
-
-          // 7. 지역 선택
-          ListTile(
-            title: Padding(
-              padding: const EdgeInsets.only(left: 8.0),
-              child: Text(
-                '지역',
-                style: TextStyle(
-                  fontSize: 20.0,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-              ),
-            ),
-          ),
-          // 8. 지역 선택 버튼
-          _buildRegionButtons(),
-
-          // 9. 추가 정보 (옵션)
-          ListTile(
-            title: Padding(
-              padding: const EdgeInsets.only(left: 8.0),
-              child: Text(
-                '추가 정보 (옵션)',
-                style: TextStyle(
-                  fontSize: 20.0,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-              ),
-            ),
-          ),
-          // 10. 출석 교회 명 입력 필드
-          Container(
-            padding: EdgeInsets.all(8.0),
-            margin: EdgeInsets.only(
-              left: 8.0,
-              right: 8.0,
-              top: 4.0,
-              bottom: 4.0,
-            ),
-            child: TextFormField(
-              decoration: InputDecoration(
-                hintText: '출석 교회 명을 입력하세요 (옵션)',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-              ),
-            ),
-          ),
-
-          // 11. '편집 완료' 버튼
+          _buildTextField('이름', '이름을 입력하세요.'),
+          _buildTextField('소개글', '소개글을 입력하세요.', maxLines: 5),
+          _buildInterestSection(),
+          _buildRegionSection(),
+          _buildTextField('출석 교회 명', '출석 교회 명을 입력하세요 (옵션)'),
           _buildRoundedButton(context),
         ],
       ),
+    );
+  }
+
+  Widget _buildTextField(String label, String hintText, {int? maxLines}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 8.0),
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 20.0,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
+          ),
+        ),
+        Container(
+          padding: EdgeInsets.all(8.0),
+          margin: EdgeInsets.symmetric(vertical: 4.0),
+          child: TextFormField(
+            maxLines: maxLines,
+            decoration: InputDecoration(
+              hintText: hintText,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8.0),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildInterestSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 8.0),
+          child: Text(
+            '관심사',
+            style: TextStyle(
+              fontSize: 20.0,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
+          ),
+        ),
+        SizedBox(height: 8.0),
+        _buildInterestButtons(),
+        SizedBox(height: 16.0),
+      ],
     );
   }
 
@@ -201,38 +125,64 @@ class _EditProfilePageState extends State<EditProfilePage> {
           _buildInterestButton('음악', 'assets/category_music.png'),
           _buildInterestButton('운동', 'assets/category_sports.png'),
           _buildInterestButton('직무', 'assets/category_career.png'),
+          _buildInterestButton('기타', 'assets/category_free.png')
         ],
       ),
     );
   }
 
   Widget _buildInterestButton(String interest, String iconPath) {
-    return ElevatedButton(
-      onPressed: () {
-        setState(() {
-          selectedInterest = interest;
-        });
-      },
-      style: ElevatedButton.styleFrom(
-        primary: selectedInterest == interest ? Colors.blue : Colors.grey,
-        onPrimary: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8.0),
-        ),
-        minimumSize: Size(80, 40),
-      ),
-      child: Row(
-        children: [
-          Image.asset(
-            iconPath,
-            width: 20,
-            height: 20,
-            color: Colors.white,
+    return Container(
+      width: 110, // 원하는 가로 크기 지정
+      height: 40, // 원하는 세로 크기 지정
+      child: ElevatedButton(
+        onPressed: () {
+          setState(() {
+            selectedInterest = interest;
+          });
+        },
+        style: ElevatedButton.styleFrom(
+          primary: selectedInterest == interest
+              ? Color(0xFFFF6F61)
+              : Colors.grey[200],
+          onPrimary: Colors.black,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8.0),
           ),
-          SizedBox(width: 8.0),
-          Text(interest),
-        ],
+        ),
+        child: Row(
+          children: [
+            Image.asset(
+              iconPath,
+              width: 20,
+              height: 20,
+              color: Colors.black,
+            ),
+            SizedBox(width: 8.0),
+            Text(interest),
+          ],
+        ),
       ),
+    );
+  }
+
+  Widget _buildRegionSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 8.0),
+          child: Text(
+            '지역',
+            style: TextStyle(
+              fontSize: 20.0,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
+          ),
+        ),
+        _buildRegionButtons(),
+      ],
     );
   }
 
@@ -247,6 +197,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
           _buildRegionButton('경기 남부'),
           _buildRegionButton('경기 북부'),
           _buildRegionButton('인천'),
+          _buildRegionButton('부산'),
+          _buildRegionButton('그 외'),
+          _buildRegionButton('온라인'),
         ],
       ),
     );
@@ -260,8 +213,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
         });
       },
       style: ElevatedButton.styleFrom(
-        primary: selectedRegion == region ? Colors.blue : Colors.grey,
-        onPrimary: Colors.white,
+        primary:
+            selectedRegion == region ? Color(0xFFFF6F61) : Colors.grey[200],
+        onPrimary: Colors.black,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8.0),
         ),

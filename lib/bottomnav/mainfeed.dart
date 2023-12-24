@@ -1,4 +1,5 @@
 import 'package:cellpjt/appbar/notification.dart';
+import 'package:cellpjt/bottomnav/vision.dart';
 import 'package:cellpjt/func2/aboutgroup.dart';
 import 'package:flutter/material.dart';
 import 'package:cellpjt/appbar/creategroup.dart';
@@ -35,11 +36,21 @@ class _MainFeedPageState extends State<MainFeedPage> {
         padding: EdgeInsets.only(top: 17.0),
         child: const Text('셀모임'),
       ),
-      leading: Container(
-        padding: EdgeInsets.only(left: 20.0, top: 20.0),
-        child: Image.asset(
-          'assets/logo.png',
-          fit: BoxFit.cover,
+      leading: GestureDetector(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => VisionPage(), // 이동하고자 하는 페이지로 변경
+            ),
+          );
+        },
+        child: Container(
+          padding: EdgeInsets.only(left: 20.0, top: 20.0),
+          child: Image.asset(
+            'assets/logo.png',
+            fit: BoxFit.cover,
+          ),
         ),
       ),
       actions: [
@@ -57,7 +68,7 @@ class _MainFeedPageState extends State<MainFeedPage> {
             MaterialPageRoute(builder: (context) => CreateGroupPage()),
           );
         }),
-        buildAppBarIconButton(Icons.notifications, () {
+        buildAppBarIconButton(Icons.notifications_none, () {
           // 알림 페이지 연결
           Navigator.push(
             context,

@@ -73,7 +73,7 @@ class _ChattingPageState extends State<ChattingPage> {
               MaterialPageRoute(builder: (context) => CreateGroupPage()),
             );
           }),
-          buildAppBarIconButton(Icons.notifications, () {
+          buildAppBarIconButton(Icons.notifications_none, () {
             // 알림 페이지 연결
             Navigator.push(
               context,
