@@ -11,6 +11,9 @@ import 'package:flutter/material.dart';
 import 'package:cellpjt/func2/members.dart';
 
 class AboutGroupPage extends StatefulWidget {
+  final moimID;
+
+  const AboutGroupPage({super.key, this.moimID});
   @override
   _AboutGroupPageState createState() => _AboutGroupPageState();
 }
@@ -31,6 +34,7 @@ class _AboutGroupPageState extends State<AboutGroupPage> {
 
     user = _auth.currentUser;
     fetchUserData();
+    moimID = widget.moimID;
   }
 
   Future<void> fetchUserData() async {
@@ -44,7 +48,10 @@ class _AboutGroupPageState extends State<AboutGroupPage> {
 
         final check = snapshot["myMoimList"];
         moimID1 = snapshot.data()!['myMoimList'];
-        moimID = moimID1!.keys.first.toString();
+        if (moimID == null || moimID!.length < 3) {
+          moimID = moimID1!.keys.first.toString();
+        }
+
         //moimID = snapshot["myMoimList"][0];
         print("MoimID !!!!! :  $check");
         print("MoimID !!!!! :  $moimID");
@@ -322,7 +329,8 @@ class _AboutGroupPageState extends State<AboutGroupPage> {
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
-                                            builder: (context) => BoardPage(),
+                                            builder: (context) =>
+                                                BoardPage(moimID: moimID),
                                           ), // 정모 일정 페이지로 이동
                                         );
                                       },
@@ -363,7 +371,10 @@ class _AboutGroupPageState extends State<AboutGroupPage> {
                                       onPressed: () => Navigator.push(
                                           context,
                                           MaterialPageRoute(
-                                            builder: (context) => ChatScreen(),
+                                            builder: (context) => ChatScreen(
+                                              moimID: moimID,
+                                              moimTitle: moimTitle,
+                                            ),
                                           )),
                                       style: ElevatedButton.styleFrom(
                                         primary: Colors.white,

@@ -5,16 +5,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_bubble/chat_bubble.dart';
 
-class ChatScreen extends StatefulWidget {
-  final moimID;
-  final moimTitle;
-  const ChatScreen({super.key, required this.moimID, required this.moimTitle});
+class TotalChatScreen extends StatefulWidget {
+  const TotalChatScreen({super.key});
 
   @override
-  State<ChatScreen> createState() => _ChatScreenState();
+  State<TotalChatScreen> createState() => _TotalChatScreenState();
 }
 
-class _ChatScreenState extends State<ChatScreen> {
+class _TotalChatScreenState extends State<TotalChatScreen> {
   final _authentication = FirebaseAuth.instance;
   User? loggedUser;
 
@@ -37,16 +35,13 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("${widget.moimTitle} 단체방"),
-      ),
-      body: SafeArea(
+      body: const SafeArea(
         child: Column(
           children: [
             Expanded(
-              child: Messages(moimID: widget.moimID),
+              child: TotalMessages(),
             ),
-            NewMessage(moimID: widget.moimID),
+            TotalNewMessage(),
           ],
         ),
       ),
@@ -54,18 +49,15 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 }
 
-class Messages extends StatelessWidget {
-  final moimID;
-  const Messages({super.key, required this.moimID});
+class TotalMessages extends StatelessWidget {
+  const TotalMessages({super.key});
 
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
     return StreamBuilder(
       stream: FirebaseFirestore.instance
-          .collection('totalChat')
-          .doc(moimID)
-          .collection("chat")
+          .collection('chat')
           .orderBy('time', descending: true)
           .snapshots(),
       builder: (context,
@@ -80,7 +72,7 @@ class Messages extends StatelessWidget {
           reverse: true,
           itemCount: chatDocs.length,
           itemBuilder: (context, index) {
-            return ChatBubbles(
+            return TotalChatBubbles(
                 chatDocs[index]['text'],
                 chatDocs[index]['userID'].toString() == user!.uid,
                 chatDocs[index]['userName'],
@@ -92,8 +84,8 @@ class Messages extends StatelessWidget {
   }
 }
 
-class ChatBubbles extends StatelessWidget {
-  const ChatBubbles(this.message, this.isMe, this.userName, this.userImage,
+class TotalChatBubbles extends StatelessWidget {
+  const TotalChatBubbles(this.message, this.isMe, this.userName, this.userImage,
       {Key? key})
       : super(key: key);
 
@@ -188,15 +180,14 @@ class ChatBubbles extends StatelessWidget {
   }
 }
 
-class NewMessage extends StatefulWidget {
-  final moimID;
-  const NewMessage({super.key, required this.moimID});
+class TotalNewMessage extends StatefulWidget {
+  const TotalNewMessage({super.key});
 
   @override
-  State<NewMessage> createState() => _NewMessageState();
+  State<TotalNewMessage> createState() => _TotalNewMessageState();
 }
 
-class _NewMessageState extends State<NewMessage> {
+class _TotalNewMessageState extends State<TotalNewMessage> {
   final _controller = TextEditingController();
   var _userEnterMessage = '';
   void _sendMessage() async {
@@ -206,11 +197,7 @@ class _NewMessageState extends State<NewMessage> {
         .collection('user')
         .doc(user!.uid)
         .get();
-    FirebaseFirestore.instance
-        .collection('totalChat')
-        .doc(widget.moimID)
-        .collection('chat')
-        .add({
+    FirebaseFirestore.instance.collection('chat').add({
       'text': _userEnterMessage,
       'time': Timestamp.now(),
       'userID': user.uid,

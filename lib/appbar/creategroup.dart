@@ -64,10 +64,16 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
     if (groupTitle.isNotEmpty && groupIntroduction.isNotEmpty) {
       try {
         String randomeID = generateRandomId(20);
+        String imageURL;
 
         Reference ref = _storage.ref().child('Moim_images/$randomeID.jpg');
-        await ref.putFile(_image!);
-        String imageURL = await ref.getDownloadURL();
+        if (_image != null) {
+          await ref.putFile(_image!);
+          imageURL = await ref.getDownloadURL();
+        } else {
+          imageURL =
+              "https://firebasestorage.googleapis.com/v0/b/ndproject-743d6.appspot.com/o/user_images%2Flogo.png?alt=media&token=21da4c39-5b63-4a94-9558-4bd5f002fe8c";
+        }
 
         if (imageURL.isEmpty) {
           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
