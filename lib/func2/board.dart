@@ -1,6 +1,5 @@
 import 'package:cellpjt/func2/board_post.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
 class BoardPage extends StatefulWidget {
@@ -13,6 +12,7 @@ class BoardPage extends StatefulWidget {
 
 class _BoardPageState extends State<BoardPage> {
   FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  String selectedCategory = ''; // 선택된 카테고리를 저장하는 변수
 
   @override
   Widget build(BuildContext context) {
@@ -34,175 +34,98 @@ class _BoardPageState extends State<BoardPage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  primary: Colors.white,
-                  onPrimary: Colors.black,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                ),
-                child: Text(
-                  "전체보기",
-                  style: TextStyle(fontSize: 9.0, fontWeight: FontWeight.bold),
-                ),
-              ),
-              ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  primary: Colors.white,
-                  onPrimary: Colors.black,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                ),
-                child: Text(
-                  "공지",
-                  style: TextStyle(fontSize: 9.0, fontWeight: FontWeight.bold),
-                ),
-              ),
-              ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  primary: Colors.white,
-                  onPrimary: Colors.black,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                ),
-                child: Text(
-                  "가입인사",
-                  style: TextStyle(fontSize: 9.0, fontWeight: FontWeight.bold),
-                ),
-              ),
-              ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  primary: Colors.white,
-                  onPrimary: Colors.black,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                ),
-                child: Text(
-                  "모임후기",
-                  style: TextStyle(fontSize: 9.0, fontWeight: FontWeight.bold),
-                ),
-              ),
-              ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  primary: Colors.white,
-                  onPrimary: Colors.black,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                ),
-                child: Text(
-                  "자유",
-                  style: TextStyle(fontSize: 9.0, fontWeight: FontWeight.bold),
-                ),
-              ),
+              _buildCategoryButton("전체보기", ''),
+              _buildCategoryButton("공지", '공지'),
+              _buildCategoryButton("가입인사", '가입인사'),
+              _buildCategoryButton("모임후기", '모임후기'),
+              _buildCategoryButton("자유", '자유'),
             ],
           ),
           Expanded(
-            child: FutureBuilder<QuerySnapshot>(
-              future: FirebaseFirestore.instance
-                  .collection('board')
-                  .doc(widget.moimID)
-                  .collection("boardDetail")
-                  // .where('boardCategory', isEqualTo: '공지')
-                  .orderBy('createdTime', descending: false)
-                  .get(),
-              builder: (BuildContext context,
-                  AsyncSnapshot<QuerySnapshot> snapshot) {
+            child: FutureBuilder<List<DocumentSnapshot>>(
+              future: _fetchBoardData(selectedCategory),
+              builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return CircularProgressIndicator(); // 데이터 로딩 중에 보여줄 UI
+                  return Center(child: CircularProgressIndicator());
                 } else {
                   if (snapshot.hasError) {
-                    return Text('Error: ${snapshot.error}');
+                    return Text('데이터를 불러올 수 없습니다.');
                   } else {
-                    if (snapshot.hasData) {
-                      List<Map<String, dynamic>> boardTotalDatas =
-                          []; // Moim 문서 데이터를 저장할 리스트
-
-                      // 모든 Moim 문서의 ID와 데이터를 가져와 리스트에 추가
-                      snapshot.data!.docs.forEach((doc) {
-                        String docId = doc.id;
-                        Map<String, dynamic> moimData =
-                            doc.data() as Map<String, dynamic>;
-                        moimData['id'] = docId; // 각 문서의 ID를 데이터에 추가
-                        boardTotalDatas.add(moimData);
-                      });
+                    if (snapshot.hasData && snapshot.data != null) {
+                      var userMemberDatas = snapshot.data;
 
                       return ListView.builder(
-                        itemCount: boardTotalDatas.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          Map<String, dynamic> boardTotalData =
-                              boardTotalDatas[index];
+                        itemCount: userMemberDatas!.length,
+                        itemBuilder: (context, index) {
+                          String userName = userMemberDatas[index]['writer'];
+                          String content = userMemberDatas[index]['content'];
 
-                          // 여기서 각 Moim 데이터를 사용하여 UI를 업데이트합니다.
-                          // 예를 들어, 각 Moim의 title을 리스트로 출력하는 방식으로 보여줍니다.
                           return _buildMeetingItem(
                             imagePath: 'assets/meeting_image.jpg',
-                            name: boardTotalData["writer"],
-                            content: boardTotalData["content"],
+                            name: userName,
+                            content: content,
                           );
                         },
                       );
                     } else {
-                      return Text('No Moim documents found');
+                      return Text('No data found');
                     }
                   }
                 }
               },
             ),
           ),
-
-          // ListView.builder(
-          //               padding: EdgeInsets.all(16.0),
-          //               itemCount: 2,
-          //               itemBuilder: (context, index) {
-          //   return
-          // _buildMeetingItem(
-          //     imagePath: 'assets/meeting_image.jpg',
-          //     name: '배준식',
-          //     content: '오늘은 모임이 정말 즐거웠어요!',
-          //   );
-          //               },
-          //             ),
-
-          // Expanded(
-          //   child: ListView(
-          //     padding: EdgeInsets.all(16.0),
-          //     children: [
-          //       _buildMeetingItem(
-          //         imagePath: 'assets/meeting_image.jpg',
-          //         name: '배준식',
-          //         content: '오늘은 모임이 정말 즐거웠어요!',
-          //       ),
-          //       _buildMeetingItem(
-          //         imagePath: 'assets/meeting_image.jpg',
-          //         name: '강현규',
-          //         content: '다음에도 이런 모임이 있으면 좋겠네요.',
-          //       ),
-          //       _buildMeetingItem(
-          //         imagePath: 'assets/meeting_image.jpg',
-          //         name: '배예은',
-          //         content: '다들 수고하셨습니다!',
-          //       ),
-          //       // 다른 정모 항목 추가
-          //       // ...
-          //     ],
-          //   ),
-          // ),
         ],
       ),
     );
   }
 
-  // Widget _buildCategoryButton(String text) {
+  Future<List<DocumentSnapshot>> _fetchBoardData(String category) async {
+    QuerySnapshot querySnapshot;
+
+    if (category.isEmpty) {
+      // 전체보기인 경우 모든 데이터 가져오기
+      querySnapshot = await FirebaseFirestore.instance
+          .collection('board')
+          .doc(widget.moimID)
+          .collection("boardDetail")
+          .orderBy('createdTime', descending: false)
+          .get();
+    } else {
+      // 특정 카테고리에 대한 데이터 가져오기
+      querySnapshot = await FirebaseFirestore.instance
+          .collection('board')
+          .doc(widget.moimID)
+          .collection("boardDetail")
+          .where('category', isEqualTo: category)
+          .orderBy('createdTime', descending: false)
+          .get();
+    }
+
+    return querySnapshot.docs;
+  }
+
+  Widget _buildCategoryButton(String text, String category) {
+    return ElevatedButton(
+      onPressed: () {
+        setState(() {
+          selectedCategory = category;
+        });
+      },
+      style: ElevatedButton.styleFrom(
+        primary: Colors.white,
+        onPrimary: Colors.black,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(fontSize: 9.0, fontWeight: FontWeight.bold),
+      ),
+    );
+  }
+
   Widget _buildMeetingItem({
     required String imagePath,
     required String name,
@@ -248,19 +171,18 @@ class _BoardPageState extends State<BoardPage> {
   Widget _buildRoundedButton(BuildContext context) {
     return ElevatedButton(
       onPressed: () async {
-        // 특정 페이지로 이동하는 코드를 여기에 추가
         await Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) {
               return BoardPostPage(moimID: widget.moimID);
-            }, // YourDestinationPage는 이동하고자 하는 페이지의 클래스명
+            },
           ),
         );
         setState(() {});
       },
       style: ElevatedButton.styleFrom(
-        primary: Color(0xFFFF6F61), // 코랄 핑크 색상
+        primary: Color(0xFFFF6F61),
         onPrimary: Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10.0),
