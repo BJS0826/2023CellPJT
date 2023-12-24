@@ -7,7 +7,6 @@ class PostFeedPage extends StatefulWidget {
 
 class _PostFeedPageState extends State<PostFeedPage> {
   List<String> meetingList = ['독서 모임', '운동 모임', '찬양 집회']; // 예시 정모 목록
-
   String selectedMeeting = '';
 
   @override
@@ -48,110 +47,72 @@ class _PostFeedPageState extends State<PostFeedPage> {
       body: ListView(
         padding: EdgeInsets.all(16.0),
         children: [
-          // 1. '정모 선택' 열
-          ListTile(
-            title: Padding(
-              padding: const EdgeInsets.only(left: 8.0),
-              child: Text(
-                '정모 선택',
-                style: TextStyle(
-                  fontSize: 20.0,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-              ),
-            ),
-          ),
-          // 2. '피드를 남기고자 하는 정모를 선택하세요.' 텍스트
-          ListTile(
-            title: Container(
-              padding: EdgeInsets.all(8.0),
-              margin: EdgeInsets.only(
-                left: 8.0,
-                right: 8.0,
-                top: 4.0,
-                bottom: 4.0,
-              ),
-              child: Text(
-                '피드를 남기고자 하는 정모를 선택하세요.',
-                style: TextStyle(
-                  color: Colors.grey,
-                ),
-              ),
-            ),
-          ),
-          // 3. 정모 선택을 위한 리스트뷰
+          _buildSectionTitle('정모 선택'),
+          _buildSectionDescription('피드를 남기고자 하는 정모를 선택하세요.'),
           _buildMeetingListView(),
-
-          // 4. '사진 첨부' 열
-          ListTile(
-            title: Padding(
-              padding: const EdgeInsets.only(left: 8.0),
-              child: Text(
-                '사진 첨부',
-                style: TextStyle(
-                  fontSize: 20.0,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-              ),
-            ),
-          ),
-          // 5. '사진을 선택하세요.' 텍스트
-          ListTile(
-            title: Container(
-              padding: EdgeInsets.all(8.0),
-              margin: EdgeInsets.only(
-                left: 8.0,
-                right: 8.0,
-                top: 4.0,
-                bottom: 4.0,
-              ),
-              child: Text(
-                '사진을 선택하세요.',
-                style: TextStyle(
-                  color: Colors.grey,
-                ),
-              ),
-            ),
-          ),
-          // 6. '피드 내용' 열
-          ListTile(
-            title: Padding(
-              padding: const EdgeInsets.only(left: 8.0),
-              child: Text(
-                '피드 내용',
-                style: TextStyle(
-                  fontSize: 20.0,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-              ),
-            ),
-          ),
-          // 7. '내용을 작성하세요.' 텍스트 필드
-          Container(
-            padding: EdgeInsets.all(8.0),
-            margin: EdgeInsets.only(
-              left: 8.0,
-              right: 8.0,
-              top: 4.0,
-              bottom: 4.0,
-            ),
-            child: TextFormField(
-              maxLines: null, // 세로로 길어질 수 있도록
-              decoration: InputDecoration(
-                hintText: '내용을 작성하세요.',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-              ),
-            ),
-          ),
-
-          // 8. '피드 올리기' 버튼
+          _buildSectionTitle('사진 첨부'),
+          _buildSectionDescription('사진을 선택하세요.'),
+          _buildSectionTitle('피드 내용'),
+          _buildTextField('내용을 작성하세요.', maxLines: 5),
           _buildRoundedButton(context),
         ],
+      ),
+    );
+  }
+
+  Widget _buildSectionTitle(String title) {
+    return ListTile(
+      title: Padding(
+        padding: const EdgeInsets.only(left: 8.0),
+        child: Text(
+          title,
+          style: TextStyle(
+            fontSize: 20.0,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSectionDescription(String description) {
+    return ListTile(
+      title: Container(
+        padding: EdgeInsets.all(8.0),
+        margin: EdgeInsets.only(
+          left: 8.0,
+          right: 8.0,
+          top: 4.0,
+          bottom: 4.0,
+        ),
+        child: Text(
+          description,
+          style: TextStyle(
+            color: Colors.grey,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField(String hintText, {int? maxLines}) {
+    return Container(
+      padding: EdgeInsets.all(8.0),
+      margin: EdgeInsets.only(
+        left: 8.0,
+        right: 8.0,
+        top: 4.0,
+        bottom: 4.0,
+      ),
+      child: TextFormField(
+        maxLines: maxLines,
+        decoration: InputDecoration(
+          hintText: hintText,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8.0),
+          ),
+        ),
       ),
     );
   }

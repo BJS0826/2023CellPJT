@@ -16,15 +16,23 @@ class CreateGroupPage extends StatefulWidget {
 }
 
 class _CreateGroupPageState extends State<CreateGroupPage> {
-  String selectedInterest = '독서'; // 기본 관심사
-  String selectedLocation = '서울'; // 기본 지역
+  String selectedInterest = '독서';
+  String selectedLocation = '서울';
   TextEditingController groupNameController = TextEditingController();
   TextEditingController groupDescriptionController = TextEditingController();
-  TextEditingController groupMembersController = TextEditingController();
   int moimLimit = 10;
   final FirebaseStorage _storage = FirebaseStorage.instance;
-
   File? _image;
+
+  // 랜덤 ID를 생성하는 함수
+  String generateRandomId(int length) {
+    const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    final random = Random();
+    return String.fromCharCodes(Iterable.generate(
+      length,
+      (_) => chars.codeUnitAt(random.nextInt(chars.length)),
+    ));
+  }
 
   Future<void> _addEventToFirestore() async {
     String groupTitle = groupNameController.text;
@@ -44,6 +52,7 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
       moimList.add(uid);
       oonYoungJin.add(uid);
     } else {
+      // 사용자가 로그인되어 있지 않은 경우 로그아웃하고 로그인 페이지로 이동
       auth.signOut().then((_) {
         Navigator.pushReplacement(
           context,
@@ -54,15 +63,6 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
 
     if (groupTitle.isNotEmpty && groupIntroduction.isNotEmpty) {
       try {
-        String generateRandomId(int length) {
-          const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
-          final random = Random();
-          return String.fromCharCodes(Iterable.generate(
-            length,
-            (_) => chars.codeUnitAt(random.nextInt(chars.length)),
-          ));
-        }
-
         String randomeID = generateRandomId(20);
         String imageURL;
 
@@ -109,13 +109,11 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
 
           await FirebaseFirestore.instance.collection('user').doc(uid).update({
             'myMoimList.$randomeID': now,
-            // 여기에 다른 필드도 추가할 수 있습니다.
           });
 
           print('모임이 성공적으로 추가되었습니다!');
           Navigator.pop(context);
         }
-        // 추가되었으니 필요한 다른 작업을 수행하거나 화면을 닫을 수 있습니다.
       } catch (e) {
         print('모임 추가 중 오류가 발생했습니다: $e');
       }
@@ -170,10 +168,7 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
     final uniqueFileName = DateTime.now().millisecondsSinceEpoch.toString();
     final File tempFile = File('${tempDir.path}/$uniqueFileName.jpg');
 
-    // Get the cropped image file as bytes
     final croppedBytes = await croppedFile.readAsBytes();
-
-    // Write the cropped image bytes to the new file
     await tempFile.writeAsBytes(croppedBytes);
 
     return tempFile;
@@ -204,6 +199,7 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // 모임 이미지 UI
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -224,21 +220,23 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
                         height: MediaQuery.of(context).size.height * 0.20,
                         width: MediaQuery.of(context).size.width * 0.7,
                         decoration: BoxDecoration(
-                            image: _image != null
-                                ? DecorationImage(
-                                    fit: BoxFit.fill,
-                                    image: FileImage(_image!),
-                                  )
-                                : DecorationImage(
-                                    image: AssetImage('assets/logo.png')),
-                            border: _image != null
-                                ? Border.all(width: 1)
-                                : Border.all(color: Color(0xFFFFFFFF)),
-                            borderRadius: BorderRadius.circular(10)),
+                          image: _image != null
+                              ? DecorationImage(
+                                  fit: BoxFit.fill,
+                                  image: FileImage(_image!),
+                                )
+                              : DecorationImage(
+                                  image: AssetImage('assets/logo.png')),
+                          border: _image != null
+                              ? Border.all(width: 1)
+                              : Border.all(color: Color(0xFFFFFFFF)),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
                       ),
                     ),
                   ),
                   SizedBox(height: 16.0),
+                  // 모임명 UI
                   Padding(
                     padding: EdgeInsets.only(bottom: 8.0),
                     child: Text(
@@ -263,6 +261,7 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
                     ),
                   ),
                   SizedBox(height: 16.0),
+                  // 모임 소개 UI
                   Padding(
                     padding: EdgeInsets.only(bottom: 8.0),
                     child: Text(
@@ -274,9 +273,9 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
                     ),
                   ),
                   SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.1,
+                    height: MediaQuery.of(context).size.height * 0.25,
                     child: TextField(
-                      maxLines: null,
+                      maxLines: 5,
                       controller: groupDescriptionController,
                       decoration: InputDecoration(
                         hintText: '모임 소개를 입력하세요.',
@@ -291,6 +290,7 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
                     ),
                   ),
                   SizedBox(height: 16.0),
+                  // 관심사 드롭다운 UI
                   Padding(
                     padding: EdgeInsets.only(bottom: 8.0),
                     child: Row(
@@ -328,6 +328,7 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
                     ),
                   ),
                   SizedBox(height: 16.0),
+                  // 지역 드롭다운 UI
                   Padding(
                     padding: EdgeInsets.only(bottom: 8.0),
                     child: Row(
@@ -365,6 +366,7 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
                     ),
                   ),
                   SizedBox(height: 16.0),
+                  // 모임 인원 NumberPicker UI
                   Padding(
                     padding: EdgeInsets.only(bottom: 8.0),
                     child: Row(
@@ -396,6 +398,7 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
                   ),
                 ],
               ),
+              // 모임 생성 버튼 UI
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -404,11 +407,11 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
                       padding: const EdgeInsets.only(top: 16.0),
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          primary: Color(0xFFFF6F61), // 코랄 핑크
+                          primary: Color(0xFFFF6F61),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8.0),
                           ),
-                          onPrimary: Colors.white, // 텍스트 색상
+                          onPrimary: Colors.white,
                         ),
                         onPressed: () {
                           _addEventToFirestore();

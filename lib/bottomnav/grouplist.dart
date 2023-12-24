@@ -50,7 +50,7 @@ class _GroupListPageState extends State<GroupListPage> {
             MaterialPageRoute(builder: (context) => CreateGroupPage()),
           );
         }),
-        buildAppBarIconButton(Icons.notifications, () {
+        buildAppBarIconButton(Icons.notifications_none, () {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => NotificationPage()),
