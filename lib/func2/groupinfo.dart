@@ -180,40 +180,6 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
                       body: ListView(
                         padding: EdgeInsets.all(16.0),
                         children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              ElevatedButton(
-                                  onPressed: () async {
-                                    bool isUserInList = false;
-                                    print(oonYoungJinList.values);
-
-                                    for (String id in oonYoungJinList.values) {
-                                      if (user?.uid == id) {
-                                        isUserInList = true;
-
-                                        break;
-                                      }
-                                    }
-
-                                    if (isUserInList) {
-                                      moimUpdate();
-                                    } else {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(const SnackBar(
-                                        content: Text("수정하기 실패"),
-                                        backgroundColor: Colors.blue,
-                                      ));
-                                    }
-                                  },
-                                  child: Text("수정하기")),
-                              ElevatedButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: Text("취소하기")),
-                            ],
-                          ),
                           // 1번째 열 - '모임명'
                           ListTile(
                             title: Padding(
@@ -305,7 +271,7 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
                             title: Padding(
                               padding: const EdgeInsets.only(left: 8.0),
                               child: Text(
-                                '모임소개',
+                                '모임 소개',
                                 style: TextStyle(
                                   fontSize: 20.0,
                                   fontWeight: FontWeight.bold,
@@ -318,6 +284,7 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
                           ListTile(
                             title: TextFormField(
                               controller: moimIntroductionController,
+                              maxLines: 5,
                               decoration: InputDecoration(
                                   labelText: moimIntroduction,
                                   border: OutlineInputBorder(
@@ -473,8 +440,46 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
                           ),
                           SizedBox(height: 16.0),
 
-                          // 나머지 페이지 내용 추가
-                          // ...
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              ElevatedButton(
+                                onPressed: () async {
+                                  bool isUserInList = false;
+                                  print(oonYoungJinList.values);
+
+                                  for (String id in oonYoungJinList.keys) {
+                                    if (user?.uid == id) {
+                                      isUserInList = true;
+                                      break;
+                                    }
+                                  }
+
+                                  if (isUserInList) {
+                                    moimUpdate();
+                                  } else {
+                                    ScaffoldMessenger.of(context)
+                                        .showSnackBar(const SnackBar(
+                                      content: Text("수정하기 실패"),
+                                      backgroundColor: Colors.blue,
+                                    ));
+                                  }
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  primary: Color(
+                                      0xFFFF6F61), // 헥사 코드 #FF6F61 (코랄 핑크)
+                                  minimumSize: Size(300.0, 48.0), // 가로 길이 조절
+                                ),
+                                child: Text(
+                                  "수정하기",
+                                  style: TextStyle(
+                                    fontSize: 16.0, // 폰트 크기 조절
+                                    color: Colors.white, // 텍스트 색상 변경
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ],
                       ),
                     )
@@ -582,7 +587,7 @@ class _GroupInfoPageState extends State<GroupInfoPage> {
                             title: Padding(
                               padding: const EdgeInsets.only(left: 8.0),
                               child: Text(
-                                '모임소개',
+                                '모임 소개',
                                 style: TextStyle(
                                   fontSize: 20.0,
                                   fontWeight: FontWeight.bold,

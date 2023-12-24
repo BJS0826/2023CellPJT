@@ -105,7 +105,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
             ),
           ),
         ),
+        SizedBox(height: 8.0),
         _buildInterestButtons(),
+        SizedBox(height: 16.0),
       ],
     );
   }
@@ -123,38 +125,43 @@ class _EditProfilePageState extends State<EditProfilePage> {
           _buildInterestButton('음악', 'assets/category_music.png'),
           _buildInterestButton('운동', 'assets/category_sports.png'),
           _buildInterestButton('직무', 'assets/category_career.png'),
+          _buildInterestButton('기타', 'assets/category_free.png')
         ],
       ),
     );
   }
 
   Widget _buildInterestButton(String interest, String iconPath) {
-    return ElevatedButton(
-      onPressed: () {
-        setState(() {
-          selectedInterest = interest;
-        });
-      },
-      style: ElevatedButton.styleFrom(
-        primary:
-            selectedInterest == interest ? Color(0xFFFF6F61) : Colors.grey[200],
-        onPrimary: Colors.black,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8.0),
-        ),
-        minimumSize: Size(80, 40),
-      ),
-      child: Row(
-        children: [
-          Image.asset(
-            iconPath,
-            width: 20,
-            height: 20,
-            color: Colors.black,
+    return Container(
+      width: 110, // 원하는 가로 크기 지정
+      height: 40, // 원하는 세로 크기 지정
+      child: ElevatedButton(
+        onPressed: () {
+          setState(() {
+            selectedInterest = interest;
+          });
+        },
+        style: ElevatedButton.styleFrom(
+          primary: selectedInterest == interest
+              ? Color(0xFFFF6F61)
+              : Colors.grey[200],
+          onPrimary: Colors.black,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8.0),
           ),
-          SizedBox(width: 8.0),
-          Text(interest),
-        ],
+        ),
+        child: Row(
+          children: [
+            Image.asset(
+              iconPath,
+              width: 20,
+              height: 20,
+              color: Colors.black,
+            ),
+            SizedBox(width: 8.0),
+            Text(interest),
+          ],
+        ),
       ),
     );
   }
@@ -190,6 +197,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
           _buildRegionButton('경기 남부'),
           _buildRegionButton('경기 북부'),
           _buildRegionButton('인천'),
+          _buildRegionButton('부산'),
+          _buildRegionButton('그 외'),
+          _buildRegionButton('온라인'),
         ],
       ),
     );
