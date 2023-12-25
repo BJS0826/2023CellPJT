@@ -228,7 +228,7 @@ class _GroupListPageState extends State<GroupListPage> {
       // 특정 카테고리에 대한 데이터 가져오기
       querySnapshot = await FirebaseFirestore.instance
           .collection('Moim')
-          .where('category', isEqualTo: category)
+          .where('moimCategory', isEqualTo: category)
           .get();
     }
 
