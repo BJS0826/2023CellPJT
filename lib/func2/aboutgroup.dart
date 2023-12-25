@@ -49,7 +49,7 @@ class _AboutGroupPageState extends State<AboutGroupPage> {
         final check = snapshot["myMoimList"];
         moimID1 = snapshot.data()!['myMoimList'];
         if (moimID == null || moimID!.length < 3) {
-          moimID = moimID1!.keys.first.toString();
+          moimID = "s5p3v7jmie";
         }
 
         //moimID = snapshot["myMoimList"][0];
