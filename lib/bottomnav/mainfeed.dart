@@ -1,6 +1,7 @@
 import 'package:cellpjt/appbar/notification.dart';
 import 'package:cellpjt/bottomnav/vision.dart';
 import 'package:cellpjt/func2/aboutgroup.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:cellpjt/appbar/creategroup.dart';
 import 'package:cellpjt/appbar/groupsearch.dart';
@@ -22,11 +23,112 @@ class _MainFeedPageState extends State<MainFeedPage> {
   TextEditingController _commentController = TextEditingController();
   List<String> _comments = ['댓글 1'];
 
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final ScrollController _scrollController = ScrollController();
+  late List<DocumentSnapshot> _data = [];
+  bool _isLoading = false;
+  int _perPage = 10; // 한 번에 가져올 아이템 수
+
+  @override
+  void initState() {
+    super.initState();
+    _getInitialData();
+
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels ==
+          _scrollController.position.maxScrollExtent) {
+        _getMoreData();
+      }
+    });
+  }
+
+  Future<void> _getInitialData() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    QuerySnapshot<Map<String, dynamic>> querySnapshot = await _firestore
+        .collection('feed')
+        .orderBy('time')
+        .limit(_perPage)
+        .get();
+
+    setState(() {
+      _data = querySnapshot.docs;
+      _isLoading = false;
+    });
+  }
+
+  Future<void> _getMoreData() async {
+    if (!_isLoading) {
+      setState(() {
+        _isLoading = true;
+      });
+
+      DocumentSnapshot lastDocument = _data[_data.length - 1];
+      QuerySnapshot<Map<String, dynamic>> querySnapshot = await _firestore
+          .collection('feed')
+          .orderBy('time')
+          .startAfterDocument(lastDocument)
+          .limit(_perPage)
+          .get();
+
+      setState(() {
+        _data.addAll(querySnapshot.docs);
+        _isLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: buildAppBar(),
-      body: buildFeedList(),
+      body: ListView.builder(
+        controller: _scrollController,
+        itemCount: _data.length + 1,
+        itemBuilder: (context, index) {
+          if (index == _data.length) {
+            return _buildLoader();
+          } else {
+            String feedContent = _data[index]['feedContent'];
+            Map<String, dynamic> preName = _data[index]['writer'];
+            String name = preName.values.first.toString();
+            String feedID = _data[index].id;
+            print(feedID);
+            return Card(
+              color: Colors.white,
+              elevation: 2.0,
+              margin: EdgeInsets.symmetric(vertical: 18.0, horizontal: 18.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  ListTile(
+                    leading: buildCircleAvatar(),
+                    title: Text(name),
+                    subtitle:
+                        Text('3시간 전', style: TextStyle(color: Colors.grey)),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => AboutGroupPage()),
+                      );
+                    },
+                    child: buildPostImage(),
+                  ),
+                  buildLikeRow(),
+                  buildFeedContent(feedContent),
+                  buildCommentButton(),
+                  buildCommentPopup(),
+                ],
+              ),
+            );
+          }
+        },
+      ),
     );
   }
 
@@ -100,44 +202,8 @@ class _MainFeedPageState extends State<MainFeedPage> {
     );
   }
 
-  ListView buildFeedList() {
-    return ListView.builder(
-      itemCount: 5,
-      itemBuilder: (context, index) {
-        return buildFeedItem();
-      },
-    );
-  }
-
-  Card buildFeedItem() {
-    return Card(
-      color: Colors.white,
-      elevation: 2.0,
-      margin: EdgeInsets.symmetric(vertical: 18.0, horizontal: 18.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          ListTile(
-            leading: buildCircleAvatar(),
-            title: Text('강현규'),
-            subtitle: Text('3시간 전', style: TextStyle(color: Colors.grey)),
-          ),
-          GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => AboutGroupPage()),
-              );
-            },
-            child: buildPostImage(),
-          ),
-          buildLikeRow(),
-          buildFeedContent(),
-          buildCommentButton(),
-          buildCommentPopup(),
-        ],
-      ),
-    );
+  Widget _buildLoader() {
+    return _isLoading ? CircularProgressIndicator() : Container();
   }
 
   CircleAvatar buildCircleAvatar() {
@@ -214,14 +280,14 @@ class _MainFeedPageState extends State<MainFeedPage> {
     );
   }
 
-  Widget buildFeedContent() {
+  Widget buildFeedContent(String feedContent) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            '안녕하세요. 지난 6월 스페인 산티아고로 순례를 다녀왔습니다. 위 사진은 순례길을 걷던 중 자연 풍경이 아름다워 찍은 사진입니다. 아직 산티아고 순례길에 가보지 못한 분들이 계시다면 꼭 한번 가보셨으면 좋겠습니다. 감사합니다.',
+            feedContent,
             style: TextStyle(fontSize: 16.0),
             maxLines: _isExpanded ? null : 3,
             overflow:

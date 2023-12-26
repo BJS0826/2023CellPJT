@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cellpjt/func2/board.dart';
 import 'package:cellpjt/func2/chat_screen.dart';
 import 'package:cellpjt/func2/groupinfo.dart';
@@ -19,7 +21,7 @@ class AboutGroupPage extends StatefulWidget {
 }
 
 class _AboutGroupPageState extends State<AboutGroupPage> {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseFirestore firestore = FirebaseFirestore.instance;
   late bool management = false;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   late Future<DocumentSnapshot<Map<String, dynamic>>> userData;
@@ -37,10 +39,18 @@ class _AboutGroupPageState extends State<AboutGroupPage> {
     moimID = widget.moimID;
   }
 
+  Future<Stream<QuerySnapshot<Map<String, dynamic>>>> getEventData() async {
+    return firestore
+        .collection("feed")
+        .where("moimId", isEqualTo: moimID)
+        .orderBy("createdTime", descending: true)
+        .snapshots();
+  }
+
   Future<void> fetchUserData() async {
     if (user != null) {
       DocumentSnapshot<Map<String, dynamic>> snapshot =
-          await _firestore.collection('user').doc(user?.uid).get();
+          await firestore.collection('user').doc(user?.uid).get();
       print("userUID!!!!! : ${user?.uid}");
       setState(() {
         userData = Future.value(snapshot);
@@ -62,7 +72,7 @@ class _AboutGroupPageState extends State<AboutGroupPage> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<DocumentSnapshot>(
-        future: _firestore.collection('Moim').doc(moimID).get(),
+        future: firestore.collection('Moim').doc(moimID).get(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Scaffold(
@@ -84,23 +94,8 @@ class _AboutGroupPageState extends State<AboutGroupPage> {
                 var moimData = snapshot.data!;
 
                 var moimTitle = moimData['moimTitle'];
-                var moimIntroduction = moimData['moimIntroduction'];
-                var moimLocation = moimData['moimLocation'];
-                var moimPoint = moimData['moimPoint'];
-                var boardId = moimData['boardID'];
-                var createdTime = moimData['createdTime'];
 
                 var moimImage = moimData['moimImage'];
-
-                var moimLimit = moimData['moimLimit'];
-
-                var moimSchedule = moimData['moimSchedule'];
-
-                var moimCategory = moimData['moimCategory'];
-                var moimLeader = moimData['moimLeader'];
-                Map<String, dynamic> Leader = moimData.get("moimLeader");
-                Map<String, dynamic> oonYoungJinList =
-                    moimData.get("oonYoungJinList");
 
                 return Scaffold(
                   appBar: AppBar(
@@ -416,7 +411,8 @@ class _AboutGroupPageState extends State<AboutGroupPage> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => PostFeedPage(),
+                                  builder: (context) =>
+                                      PostFeedPage(moimID: moimID),
                                 ),
                               );
                             },
@@ -595,49 +591,103 @@ class _AboutGroupPageState extends State<AboutGroupPage> {
                             ),
                           ),
                           SizedBox(height: 16.0),
-                          GridView.count(
-                            crossAxisCount: 2,
-                            crossAxisSpacing: 16.0,
-                            mainAxisSpacing: 16.0,
-                            shrinkWrap: true,
-                            physics: NeverScrollableScrollPhysics(),
-                            children: List.generate(
-                              4,
-                              (index) => InkWell(
-                                onTap: () {
-                                  // 피드를 클릭했을 때 상세 내용 페이지로 이동
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          FeedDetailPage(feedIndex: index),
+                          StreamBuilder<QuerySnapshot>(
+                            stream: firestore
+                                .collection("feed")
+                                .where("moimId", isEqualTo: moimID)
+                                .snapshots(),
+                            builder: (context, snapshot2) {
+                              if (snapshot2.connectionState ==
+                                  ConnectionState.waiting) {
+                                return Center(
+                                    child:
+                                        CircularProgressIndicator()); // 데이터를 기다리는 동안 로딩 표시
+                              } else if (snapshot2.hasError) {
+                                return Center(
+                                    child: Text('데이터를 가져오는 데 문제가 발생했습니다.'));
+                              } else if (!snapshot2.hasData ||
+                                  snapshot2.data == null) {
+                                return Center(child: Text('데이터가 없습니다.'));
+                              }
+
+                              final documents = snapshot2.data!.docs;
+                              List<Map<String, dynamic>> sortedData = [];
+                              documents.forEach((doc) {
+                                Map<String, dynamic> data =
+                                    doc.data() as Map<String, dynamic>;
+                                data['id'] = doc.id;
+                                sortedData.add(data);
+                              });
+
+                              // 시간에 따라 정렬
+                              sortedData.sort((a, b) => a['time']
+                                  .compareTo(b['time'])); // 'time' 필드에 따라 정렬
+                              return GridView.builder(
+                                gridDelegate:
+                                    SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 2,
+                                  crossAxisSpacing: 16.0,
+                                  mainAxisSpacing: 16.0,
+                                ),
+                                shrinkWrap: true,
+                                physics: NeverScrollableScrollPhysics(),
+                                itemCount: sortedData.length,
+                                itemBuilder: (context, index) {
+                                  String feedImage =
+                                      sortedData[index]["feedImage"];
+                                  var preTime = sortedData[index]["time"];
+                                  String time = preTime.toString();
+                                  String feedContent =
+                                      sortedData[index]["feedContent"];
+                                  Map<String, dynamic> writer =
+                                      sortedData[index]["writer"];
+                                  String selectedMeeting =
+                                      sortedData[index]["selectedMeeting"];
+                                  String feedId = sortedData[index]['id'];
+
+                                  return InkWell(
+                                    onTap: () async {
+                                      // 피드를 클릭했을 때 상세 내용 페이지로 이동
+                                      await Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              FeedDetailPage(feedId: feedId),
+                                        ),
+                                      );
+                                      setState(() {});
+                                    },
+                                    child: Card(
+                                      elevation: 2.0,
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.stretch,
+                                        children: [
+                                          Container(
+                                            height: 100,
+                                            decoration: BoxDecoration(
+                                                image: DecorationImage(
+                                                    image:
+                                                        NetworkImage(feedImage),
+                                                    fit: BoxFit.cover)),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Text(
+                                              '내용: $feedContent',
+                                              style: TextStyle(fontSize: 16.0),
+                                            ),
+                                          ),
+                                          Text('작성자 : ${writer.values.first}'),
+                                          Text('모임종류 : $selectedMeeting'),
+                                        ],
+                                      ),
                                     ),
                                   );
                                 },
-                                child: Card(
-                                  elevation: 2.0,
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.stretch,
-                                    children: [
-                                      Image.asset(
-                                        'assets/post_image.jpg',
-                                        fit: BoxFit.cover,
-                                        height: 100.0,
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Text(
-                                          '피드 제목 ${index + 1}',
-                                          style: TextStyle(fontSize: 16.0),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          )
+                              );
+                            },
+                          ),
                         ],
                       ),
                     ],
@@ -658,9 +708,11 @@ class _AboutGroupPageState extends State<AboutGroupPage> {
 }
 
 class FeedDetailPage extends StatelessWidget {
-  final int feedIndex;
-
-  const FeedDetailPage({Key? key, required this.feedIndex}) : super(key: key);
+  final feedId;
+  const FeedDetailPage({
+    Key? key,
+    required this.feedId,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -668,28 +720,58 @@ class FeedDetailPage extends StatelessWidget {
       appBar: AppBar(
         title: Text('피드 상세 내용'),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset(
-              'assets/post_image.jpg',
-              fit: BoxFit.cover,
-              height: 200.0,
-            ),
-            SizedBox(height: 16.0),
-            Text(
-              '피드 제목 ${feedIndex + 1}',
-              style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 16.0),
-            Text(
-              '피드 내용이 여기에 들어갑니다.',
-              style: TextStyle(fontSize: 16.0),
-            ),
-          ],
-        ),
-      ),
+      body: FutureBuilder<DocumentSnapshot>(
+          future:
+              FirebaseFirestore.instance.collection('feed').doc(feedId).get(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return CircularProgressIndicator();
+            } else if (snapshot.hasError) {
+              return Text('Error: ${snapshot.error}');
+            }
+
+            if (!snapshot.hasData || snapshot.data == null) {
+              return Text('문서가 없습니다.');
+            }
+            Map<String, dynamic> data =
+                snapshot.data!.data() as Map<String, dynamic>;
+            String feedDetailImage = data["feedImage"];
+            String feedContent = data["feedContent"];
+            String selectedMeeting = data["selectedMeeting"];
+            int viewNumber = data["viewNumber"];
+            int favorite = data["favorite"];
+            Map<String, dynamic> writer = data["writer"];
+            Timestamp time = data["time"];
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    height: 200,
+                    decoration: BoxDecoration(
+                        image: DecorationImage(
+                            image: NetworkImage(feedDetailImage),
+                            fit: BoxFit.cover)),
+                  ),
+                  SizedBox(height: 16.0),
+                  Text(
+                    '피드 모임 : $selectedMeeting',
+                    style:
+                        TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 16.0),
+                  Text(
+                    '피드 내용 : $feedContent',
+                    style: TextStyle(fontSize: 16.0),
+                  ),
+                  Text('본 사람 수 : $viewNumber'),
+                  Text('좋아요 한 사람수 :  $favorite'),
+                  Text('글쓴이 : $writer'),
+                  Text('시간(TimeStamp) : $time'),
+                ],
+              ),
+            );
+          }),
     );
   }
 }

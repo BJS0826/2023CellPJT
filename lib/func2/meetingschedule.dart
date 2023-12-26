@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -20,6 +21,8 @@ class _MeetingSchedulePageState extends State<MeetingSchedulePage> {
   final FirebaseAuth auth = FirebaseAuth.instance;
   User? user;
   Map<DateTime, List<Event>> _events = {};
+  DateTime _selectedDate = DateTime.now();
+  bool total = false;
 
   @override
   void initState() {
@@ -27,11 +30,13 @@ class _MeetingSchedulePageState extends State<MeetingSchedulePage> {
     user = auth.currentUser;
     _selectedDay = _focusedDay;
 
-    _getEventsFromFirebase();
+    _getEventsFromFirebaseFromToday();
   }
 
-  Future<void> _getEventsFromFirebase() async {
+  Future<void> _getEventsFromFirebaseForTotal() async {
     _events = {};
+    DateTime today = DateTime.now();
+
     try {
       // Firebase Firestore에서 이벤트 데이터 가져오기
       QuerySnapshot<Map<String, dynamic>> querySnapshot =
@@ -39,6 +44,42 @@ class _MeetingSchedulePageState extends State<MeetingSchedulePage> {
               .collection('totalMoimSchedule')
               .doc(widget.moimID)
               .collection("moimSchedule")
+              .get();
+
+      querySnapshot.docs.forEach((doc) {
+        Timestamp predate = doc.data()['date'];
+        DateTime date = DateTime.utc(predate.toDate().year,
+            predate.toDate().month, predate.toDate().day);
+        // 혹은 DateTime.utc(predate.toDate().year, predate.toDate().month, predate.toDate().day);
+
+        var moimContent = (doc.data() as Map)['moimContent'];
+        var moimLocation = (doc.data() as Map)['moimLocation'];
+        var moimTitle = (doc.data() as Map)['moimTitle'];
+
+        // 가져온 데이터를 TableCalendar에 맞게 변환하여 _events 맵에 추가
+        _events[date] ??= [];
+
+        _events[date]!.add(Event(moimTitle, moimContent, moimLocation));
+      });
+
+      setState(() {});
+    } catch (e) {
+      print('Firebase 데이터 가져오기 오류: $e');
+    }
+  }
+
+  Future<void> _getEventsFromFirebaseFromToday() async {
+    _events = {};
+    DateTime today = DateTime.now();
+
+    try {
+      // Firebase Firestore에서 이벤트 데이터 가져오기
+      QuerySnapshot<Map<String, dynamic>> querySnapshot =
+          await FirebaseFirestore.instance
+              .collection('totalMoimSchedule')
+              .doc(widget.moimID)
+              .collection("moimSchedule")
+              .where('date', isGreaterThanOrEqualTo: today)
               .get();
 
       querySnapshot.docs.forEach((doc) {
@@ -76,12 +117,86 @@ class _MeetingSchedulePageState extends State<MeetingSchedulePage> {
       setState(() {
         _selectedDay = selectedDay;
         _focusedDay = focusedDay;
+        _selectedDate = selectedDay;
+        total = false;
       });
     }
   }
 
+  Widget _buildEventsLists() {
+    List<Event> eventsForSelectedDate = _getEventsForDay(_selectedDate);
+
+    return ListView.builder(
+      itemCount: eventsForSelectedDate.length,
+      itemBuilder: (BuildContext context, int index) {
+        Event event = eventsForSelectedDate[index];
+        // 이벤트 세부 정보를 ListTile 또는 사용자 정의 위젯을 사용하여 표시
+        return ListTile(
+          title: Text(event.title),
+          subtitle: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(event.title),
+              Text(event.content),
+              Divider(),
+            ],
+          ),
+          // 필요한 경우 추가 정보 표시
+        );
+      },
+    );
+  }
+
   List<Event> _getEventsForDay(DateTime day) {
     return _events[day] ?? [];
+  }
+
+  Widget _buildEventsList() {
+    // Get all the dates in your events map and sort them
+    List<DateTime> sortedDates = _events.keys.toList()
+      ..sort((a, b) => a.compareTo(b));
+
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
+      itemCount: sortedDates.length,
+      itemBuilder: (BuildContext context, int index) {
+        DateTime date = sortedDates[index];
+        List<Event> eventsForDate = _events[date] ?? [];
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+              child: Text(
+                DateFormat('yyyy-MM-dd').format(date), // Format date as needed
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            ListView.builder(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              itemCount: eventsForDate.length,
+              itemBuilder: (BuildContext context, int index) {
+                Event event = eventsForDate[index];
+                // You can design the ListTile or widget to display event details
+                return ListTile(
+                  title: Text(event.title),
+                  subtitle: Text(event.content),
+                  // Add more details as needed
+                );
+              },
+            ),
+            Divider(), // Add a divider between dates if required
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -117,7 +232,7 @@ class _MeetingSchedulePageState extends State<MeetingSchedulePage> {
                     selectedDay: _selectedDay),
               );
               setState(() {
-                _getEventsFromFirebase();
+                _getEventsFromFirebaseFromToday();
               });
             },
             calendarStyle: const CalendarStyle(
@@ -129,7 +244,7 @@ class _MeetingSchedulePageState extends State<MeetingSchedulePage> {
               titleCentered: true,
             ),
           ),
-          SizedBox(height: MediaQuery.of(context).size.height * 0.01),
+          SizedBox(height: 20),
           Container(
             color: Colors.grey[300],
             child: Row(
@@ -138,14 +253,16 @@ class _MeetingSchedulePageState extends State<MeetingSchedulePage> {
                 ElevatedButton(
                     onPressed: () {
                       setState(() {
-                        _getEventsFromFirebase();
+                        total = true;
+                        _getEventsFromFirebaseFromToday();
                       });
                     },
-                    child: Text("전체모임보기")),
+                    child: Text("예정모임보기")),
                 ElevatedButton(
                     onPressed: () {
                       setState(() {
-                        _getEventsFromFirebase();
+                        total = true;
+                        _getEventsFromFirebaseForTotal();
                       });
                     },
                     child: Text("전체정모보기")),
@@ -160,118 +277,22 @@ class _MeetingSchedulePageState extends State<MeetingSchedulePage> {
                             selectedDay: _selectedDay),
                       );
                       setState(() {
-                        _getEventsFromFirebase();
+                        _getEventsFromFirebaseFromToday();
                       });
                     },
                     child: Text("정모만들기")),
               ],
             ),
           ),
-          SizedBox(height: MediaQuery.of(context).size.height * 0.01),
-          FutureBuilder<DocumentSnapshot>(
-            future: _firestore.collection("user").doc(user!.uid).get(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(
-                  child: CircularProgressIndicator(),
-                );
-              } else {
-                if (snapshot.hasError) {
-                  return Center(
-                    child: Text('데이터를 불러올 수 없습니다.'),
-                  );
-                } else {
-                  if (snapshot.hasData &&
-                      snapshot.data != null &&
-                      snapshot.data!.exists) {
-                    var userData = snapshot.data!;
-
-                    String email = userData["email"];
-                    Map<String, dynamic> myMoimList = userData["myMoimList"];
-                    String pickedImage = userData["picked_image"];
-                    String userName = userData["userName"];
-
-                    print(
-                        "테스트 이메일 : $email / 모임리스트 : $myMoimList / 사진url : $pickedImage / 이름 : $userName");
-
-                    List<Future<DocumentSnapshot<Map<String, dynamic>>>>
-                        datasList = [];
-
-                    for (String id in myMoimList.keys) {
-                      Future<DocumentSnapshot<Map<String, dynamic>>> data =
-                          _firestore.collection("Moim").doc(id).get();
-                      datasList.add(data);
-                    }
-
-                    return FutureBuilder(
-                        future: Future.wait(datasList),
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return Center(child: CircularProgressIndicator());
-                          } else {
-                            if (snapshot.hasError) {
-                              return Text('데이터를 불러올 수 없습니다.');
-                            } else {
-                              if (snapshot.hasData && snapshot.data != null) {
-                                var MoImDatas = snapshot.data;
-                                return ListView.builder(
-                                  shrinkWrap: true,
-                                  itemCount: MoImDatas!.length,
-                                  itemBuilder: (context, index) {
-                                    String moimTitle =
-                                        MoImDatas[index]["moimTitle"];
-                                    String moimImage =
-                                        MoImDatas[index]["moimImage"];
-                                    String moimTitles =
-                                        MoImDatas[index]["moimTitle"];
-                                    String moimID = MoImDatas[index].id;
-
-                                    return GestureDetector(
-                                      onTap: () {},
-                                      child: Padding(
-                                        padding:
-                                            const EdgeInsets.only(bottom: 16.0),
-                                        child: Card(
-                                          elevation: 2.0,
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.stretch,
-                                            children: [
-                                              ListTile(
-                                                leading: CircleAvatar(
-                                                  radius: 20.0,
-                                                  backgroundImage:
-                                                      NetworkImage(moimImage),
-                                                ),
-                                                title: Text(moimTitle),
-                                                subtitle: Text(moimTitles,
-                                                    style: TextStyle(
-                                                        color: Colors.grey)),
-                                              ),
-                                              // ... 추가 정보 (모임 인원 등)
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                );
-                              }
-                              return Expanded(
-                                  child: Center(
-                                      child: CircularProgressIndicator()));
-                            }
-                          }
-                        });
-                  } else {
-                    return Expanded(
-                        child: Center(child: CircularProgressIndicator()));
-                  }
-                }
-              }
-            },
-          ),
+          SizedBox(height: 20),
+          total
+              ? _buildEventsList()
+              : Container(
+                  color: Colors.amber,
+                  width: double.infinity,
+                  height: MediaQuery.of(context).size.height * 0.35,
+                  child: _buildEventsLists(),
+                ),
         ],
       ),
     );
