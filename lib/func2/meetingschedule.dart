@@ -136,20 +136,45 @@ class _MeetingSchedulePageState extends State<MeetingSchedulePage> {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      primary: Color(0xFFFF6F61), // 버튼 색상을 코랄 핑크로 설정
+                      onPrimary: Colors.white, // 텍스트 색상을 흰색으로 설정
+                      shape: RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.circular(10), // 버튼 가장자리 둥글게 설정
+                      ),
+                      padding: EdgeInsets.all(20), // 버튼 내부 패딩 설정
+                    ),
                     onPressed: () {
                       setState(() {
                         _getEventsFromFirebase();
                       });
                     },
-                    child: Text("전체모임보기")),
+                    child: Text("전체 모임")),
                 ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      primary: Color(0xFFFF6F61),
+                      onPrimary: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      padding: EdgeInsets.all(20),
+                    ),
                     onPressed: () {
                       setState(() {
                         _getEventsFromFirebase();
                       });
                     },
-                    child: Text("전체정모보기")),
+                    child: Text("전체 정모")),
                 ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      primary: Color(0xFFFF6F61),
+                      onPrimary: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      padding: EdgeInsets.all(20),
+                    ),
                     onPressed: () async {
                       await showModalBottomSheet(
                         context: context,
@@ -163,7 +188,7 @@ class _MeetingSchedulePageState extends State<MeetingSchedulePage> {
                         _getEventsFromFirebase();
                       });
                     },
-                    child: Text("정모만들기")),
+                    child: Text("정모 생성")),
               ],
             ),
           ),
@@ -507,89 +532,91 @@ class _AddBottomSheetState extends State<AddBottomSheet> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-        child: Scaffold(
-      body: Container(
-        color: Colors.transparent,
-        height: MediaQuery.of(context).size.height / 2,
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                ElevatedButton(
-                    onPressed: () {
-                      _selectDate(context);
-                    },
-                    child: Text('날짜선택 ${newDAY}')),
-                ElevatedButton(
-                    onPressed: () {
-                      _selectTime(context);
-                    },
-                    child: Text('시간선택 $selectedTime')),
-              ],
-            ),
-            ElevatedButton(
-              onPressed: () {
-                _showNumberPickerModal(context);
-              },
-              child: Text(
-                '제한인원: $_selectedValue',
-                style: TextStyle(fontSize: 20.0),
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        body: SingleChildScrollView(
+          padding: EdgeInsets.all(16.0),
+          child: Column(
+            children: <Widget>[
+              SizedBox(height: 20),
+              _buildTextField(_locationController, "정모장소"),
+              SizedBox(height: 20),
+              _buildTextField(_titleController, "정모명"),
+              SizedBox(height: 20),
+              _buildTextField(_contentController, "정모내용", maxLines: 5),
+              SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _buildButton('날짜선택 ${newDAY}', () => _selectDate(context),
+                      MediaQuery.of(context).size.width * 0.4),
+                  _buildButton('시간선택 $selectedTime', () => _selectTime(context),
+                      MediaQuery.of(context).size.width * 0.4),
+                ],
               ),
-            ),
-            TextField(
-              controller: _locationController,
-              decoration: InputDecoration(
-                labelText: "정모장소",
+              SizedBox(height: 20),
+              _buildButton(
+                  '제한인원: $_selectedValue',
+                  () => _showNumberPickerModal(context),
+                  MediaQuery.of(context).size.width * 0.8),
+              SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _buildButton('정모만들기', () {
+                    if (picked != null) {
+                      _addEventToFirebase(
+                          selectedDate,
+                          picked!,
+                          _titleController.text,
+                          _locationController.text,
+                          _contentController.text);
+                      Navigator.of(context).pop();
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("시간을 선택해 주세요"),
+                          backgroundColor: Colors.blue,
+                        ),
+                      );
+                    }
+                  }, MediaQuery.of(context).size.width * 0.4),
+                  _buildButton('취소하기', () => Navigator.pop(context),
+                      MediaQuery.of(context).size.width * 0.4),
+                ],
               ),
-            ),
-            TextField(
-              controller: _titleController,
-              decoration: InputDecoration(
-                labelText: "정모명",
-              ),
-            ),
-            TextField(
-              controller: _contentController,
-              maxLines: 5,
-              decoration: InputDecoration(
-                labelText: "정모내용",
-              ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                ElevatedButton(
-                    onPressed: () async {
-                      if (picked != null) {
-                        _addEventToFirebase(
-                            selectedDate,
-                            picked!,
-                            _titleController.text,
-                            _locationController.text,
-                            _contentController.text);
-                        Navigator.of(context).pop();
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text("시간을 선택해 주세요"),
-                            backgroundColor: Colors.blue,
-                          ),
-                        );
-                      }
-                    },
-                    child: Text("정모만들기")),
-                ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: Text("취소하기")),
-              ],
-            ),
-          ],
+              SizedBox(height: 20),
+            ],
+          ),
         ),
       ),
-    ));
+    );
+  }
+
+  Widget _buildTextField(TextEditingController controller, String labelText,
+      {int maxLines = 1}) {
+    return TextField(
+      controller: controller,
+      maxLines: maxLines,
+      decoration: InputDecoration(
+        labelText: labelText,
+        border: OutlineInputBorder(),
+        contentPadding: EdgeInsets.all(8.0),
+      ),
+    );
+  }
+
+  Widget _buildButton(String text, VoidCallback onPressed, double width) {
+    return Container(
+      width: width,
+      child: ElevatedButton(
+        onPressed: onPressed,
+        child: Text(text, style: TextStyle(color: Colors.white)),
+        style: ButtonStyle(
+          backgroundColor: MaterialStateProperty.all<Color>(Color(0xFFFF6F61)),
+        ),
+      ),
+    );
   }
 
   Future<void> _addEventToFirebase(DateTime selectedDate, TimeOfDay picked,
