@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:cellpjt/func2/board.dart';
 import 'package:cellpjt/func2/chat_screen.dart';
 import 'package:cellpjt/func2/groupinfo.dart';
+import 'package:cellpjt/func2/joinmeeting.dart';
 import 'package:cellpjt/func2/meetingschedule.dart';
 import 'package:cellpjt/func2/meetingsettings.dart';
 import 'package:cellpjt/func2/pointshop.dart';
@@ -198,30 +199,62 @@ class _AboutGroupPageState extends State<AboutGroupPage> {
                                   ),
                                 ],
                               ),
-                              Container(
-                                width: 80,
-                                height: 40,
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            MembersPage(moimID: moimID),
-                                      ), // 모임원 페이지로 이동
-                                    );
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    padding: EdgeInsets.all(8), // 내부 간격 조절
-                                  ),
-                                  child: Text(
-                                    '모임원 >',
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 12, // 폰트 크기 조절
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Container(
+                                    width: 80,
+                                    height: 40,
+                                    child: ElevatedButton(
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                JoinMeetingPage(),
+                                          ),
+                                        );
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        padding: EdgeInsets.all(8),
+                                      ),
+                                      child: Text(
+                                        '모임 가입',
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 12,
+                                        ),
+                                      ),
                                     ),
                                   ),
-                                ),
+                                  SizedBox(width: 10), // 간격 추가
+                                  Container(
+                                    width: 80,
+                                    height: 40,
+                                    child: ElevatedButton(
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                MembersPage(moimID: moimID),
+                                          ),
+                                        );
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        padding: EdgeInsets.all(8),
+                                      ),
+                                      child: Text(
+                                        '모임원 >',
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
