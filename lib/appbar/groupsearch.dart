@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 
 class GroupSearchPage extends StatelessWidget {
-  TextEditingController searchController = TextEditingController();
-
-  GroupSearchPage({super.key});
+  const GroupSearchPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    TextEditingController searchController = TextEditingController();
     return MaterialApp(
       title: '모임 검색',
       home: Scaffold(
