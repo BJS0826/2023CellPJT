@@ -124,7 +124,8 @@ class _MeetingSchedulePageState extends State<MeetingSchedulePage> {
   }
 
   Widget _buildEventsLists() {
-    List<Event> eventsForSelectedDate = _getEventsForDay(_selectedDate);
+    // _events 맵에서 선택된 날짜에 해당하는 이벤트 가져오기
+    List<Event> eventsForSelectedDate = _events[_selectedDate] ?? [];
 
     return ListView.builder(
       itemCount: eventsForSelectedDate.length,
@@ -246,68 +247,48 @@ class _MeetingSchedulePageState extends State<MeetingSchedulePage> {
           ),
           SizedBox(height: 20),
           Container(
-            color: Colors.grey[300],
+            color: Colors.white,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      primary: Color(0xFFFF6F61), // 버튼 색상을 코랄 핑크로 설정
-                      onPrimary: Colors.white, // 텍스트 색상을 흰색으로 설정
-                      shape: RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.circular(10), // 버튼 가장자리 둥글게 설정
-                      ),
-                      padding: EdgeInsets.all(20), // 버튼 내부 패딩 설정
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        total = true;
-                        _getEventsFromFirebaseFromToday();
-                      });
-                    },
-
-                    child: Text("예정모임보기")),
-
-                ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      primary: Color(0xFFFF6F61),
-                      onPrimary: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      padding: EdgeInsets.all(20),
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        total = true;
+                Checkbox(
+                  value: total,
+                  onChanged: (value) {
+                    setState(() {
+                      total = value!;
+                      if (total) {
                         _getEventsFromFirebaseForTotal();
-                      });
-                    },
-                    child: Text("전체 정모")),
-                ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      primary: Color(0xFFFF6F61),
-                      onPrimary: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      padding: EdgeInsets.all(20),
-                    ),
-                    onPressed: () async {
-                      await showModalBottomSheet(
-                        context: context,
-                        isDismissible: true,
-                        builder: (context) => AddBottomSheet(
-                            moimID: widget.moimID,
-                            focusedDay: _focusedDay,
-                            selectedDay: _selectedDay),
-                      );
-                      setState(() {
+                      } else {
                         _getEventsFromFirebaseFromToday();
-                      });
-                    },
-                    child: Text("정모 생성")),
+                      }
+                    });
+                  },
+                ),
+                Text("전체 정모 보기"),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    primary: Color(0xFFFF6F61),
+                    onPrimary: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    padding: EdgeInsets.all(20),
+                  ),
+                  onPressed: () async {
+                    await showModalBottomSheet(
+                      context: context,
+                      isDismissible: true,
+                      builder: (context) => AddBottomSheet(
+                          moimID: widget.moimID,
+                          focusedDay: _focusedDay,
+                          selectedDay: _selectedDay),
+                    );
+                    setState(() {
+                      _getEventsFromFirebaseFromToday();
+                    });
+                  },
+                  child: Text("정모 생성"),
+                ),
               ],
             ),
           ),
@@ -315,7 +296,7 @@ class _MeetingSchedulePageState extends State<MeetingSchedulePage> {
           total
               ? _buildEventsList()
               : Container(
-                  color: Colors.amber,
+                  color: Colors.white,
                   width: double.infinity,
                   height: MediaQuery.of(context).size.height * 0.35,
                   child: _buildEventsLists(),
@@ -325,62 +306,6 @@ class _MeetingSchedulePageState extends State<MeetingSchedulePage> {
     );
   }
 }
-
-// ListView(
-//   padding: EdgeInsets.all(16.0),
-//   children: [
-//     MeetingItem(
-//       name: '23년 CM 리더 모임',
-//       date: '12. 17(일)',
-//       location: '베다니교회',
-//     ),
-//     Divider(color: Colors.grey), // 리스트 간의 회색 줄
-//     MeetingItem(
-//       name: '두 번째 모임',
-//       date: '12. 18(월)',
-//       location: '두번째 장소',
-//     ),
-//     Divider(color: Colors.grey), // 리스트 간의 회색 줄
-//     MeetingItem(
-//       name: '세 번째 모임',
-//       date: '12. 19(화)',
-//       location: '세번째 장소',
-//     ),
-//     Divider(color: Colors.grey), // 리스트 간의 회색 줄
-//     MeetingItem(
-//       name: '세 번째 모임',
-//       date: '12. 19(화)',
-//       location: '세번째 장소',
-//     ),
-//     Divider(color: Colors.grey), // 리스트 간의 회색 줄
-//     MeetingItem(
-//       name: '세 번째 모임',
-//       date: '12. 19(화)',
-//       location: '세번째 장소',
-//     ),
-//     Divider(color: Colors.grey), // 리스트 간의 회색 줄
-//     MeetingItem(
-//       name: '세 번째 모임',
-//       date: '12. 19(화)',
-//       location: '세번째 장소',
-//     ),
-//     Divider(color: Colors.grey), // 리스트 간의 회색 줄
-//     MeetingItem(
-//       name: '세 번째 모임',
-//       date: '12. 19(화)',
-//       location: '세번째 장소',
-//     ),
-//     Divider(color: Colors.grey), // 리스트 간의 회색 줄
-//     MeetingItem(
-//       name: '세 번째 모임',
-//       date: '12. 19(화)',
-//       location: '세번째 장소',
-//     ),
-
-//     // 다른 정모 항목 추가
-//     // ...
-//   ],
-// ),
 
 class MeetingItem extends StatelessWidget {
   final String name;
@@ -562,56 +487,100 @@ class _AddBottomSheetState extends State<AddBottomSheet> {
           child: Column(
             children: <Widget>[
               SizedBox(height: 20),
-              _buildTextField(_locationController, "정모장소"),
+              _buildTextField(_locationController, "정모 장소"),
               SizedBox(height: 20),
               _buildTextField(_titleController, "정모명"),
               SizedBox(height: 20),
-              _buildTextField(_contentController, "정모내용", maxLines: 5),
+              _buildTextField(_contentController, "정모 내용", maxLines: 5),
               SizedBox(height: 20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  _buildButton('날짜선택 ${newDAY}', () => _selectDate(context),
-                      MediaQuery.of(context).size.width * 0.4),
-                  _buildButton('시간선택 $selectedTime', () => _selectTime(context),
-                      MediaQuery.of(context).size.width * 0.4),
+                  _buildGrayButton(
+                    () => _selectDate(context),
+                    115.0,
+                    50.0,
+                    '날짜 선택\n${selectedDate != null ? DateFormat('yy-MM-dd').format(selectedDate!) : "날짜를 선택하세요"}',
+                  ),
+                  _buildGrayButton(
+                    () => _selectTime(context),
+                    115.0,
+                    50.0,
+                    '시간 선택\n${selectedTime ?? "시간을 선택하세요"}',
+                  ),
+                  _buildGrayButton(
+                    () => _showNumberPickerModal(context),
+                    115.0,
+                    50.0,
+                    '제한인원 : $_selectedValue',
+                  ),
                 ],
               ),
               SizedBox(height: 20),
-              _buildButton(
-                  '제한인원: $_selectedValue',
-                  () => _showNumberPickerModal(context),
-                  MediaQuery.of(context).size.width * 0.8),
-              SizedBox(height: 20),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _buildButton('정모만들기', () {
-                    if (picked != null) {
-                      _addEventToFirebase(
-                          selectedDate,
-                          picked!,
-                          _titleController.text,
-                          _locationController.text,
-                          _contentController.text);
-                      Navigator.of(context).pop();
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text("시간을 선택해 주세요"),
-                          backgroundColor: Colors.blue,
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        if (picked != null) {
+                          _addEventToFirebase(
+                              selectedDate,
+                              picked!,
+                              _titleController.text,
+                              _locationController.text,
+                              _contentController.text);
+                          Navigator.of(context).pop();
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("시간을 선택해 주세요"),
+                              backgroundColor: Colors.blue,
+                            ),
+                          );
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        primary: Color(0xFFFF6F61),
+                        onPrimary: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(0.0),
                         ),
-                      );
-                    }
-                  }, MediaQuery.of(context).size.width * 0.4),
-                  _buildButton('취소하기', () => Navigator.pop(context),
-                      MediaQuery.of(context).size.width * 0.4),
+                      ),
+                      child: Container(
+                        padding: EdgeInsets.all(16.0),
+                        child: Text(
+                          '정모 만들기',
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
               SizedBox(height: 20),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildGrayButton(
+      Function() onPressed, double width, double height, String text) {
+    return Container(
+      width: width,
+      height: height, // 세로 길이를 명시적으로 설정
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          primary: Colors.grey,
+          onPrimary: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(0.0),
+          ),
+        ),
+        child: Text(text),
       ),
     );
   }
