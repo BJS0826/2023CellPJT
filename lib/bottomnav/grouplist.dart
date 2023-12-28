@@ -12,7 +12,7 @@ class GroupListPage extends StatefulWidget {
 
 class _GroupListPageState extends State<GroupListPage> {
   PageController _pageController = PageController(viewportFraction: 0.8);
-  String selectedCategory = ''; // 선택된 카테고리를 저장하는 변수
+  String selectedCategory = '';
 
   @override
   Widget build(BuildContext context) {
@@ -40,22 +40,13 @@ class _GroupListPageState extends State<GroupListPage> {
       ),
       actions: [
         buildAppBarIconButton(Icons.search, () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => GroupSearchPage()),
-          );
+          navigateToPage(GroupSearchPage());
         }),
         buildAppBarIconButton(Icons.add, () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => CreateGroupPage()),
-          );
+          navigateToPage(CreateGroupPage());
         }),
         buildAppBarIconButton(Icons.notifications_none, () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => NotificationPage()),
-          );
+          navigateToPage(NotificationPage());
         }),
       ],
       bottom: PreferredSize(
@@ -74,10 +65,17 @@ class _GroupListPageState extends State<GroupListPage> {
     );
   }
 
-  IconButton buildAppBarIconButton(IconData icon, Function onPressed) {
+  void navigateToPage(Widget page) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => page),
+    );
+  }
+
+  IconButton buildAppBarIconButton(IconData icon, VoidCallback onPressed) {
     return IconButton(
       icon: Icon(icon),
-      onPressed: onPressed as void Function()?,
+      onPressed: onPressed,
       padding: EdgeInsets.symmetric(vertical: 26.0, horizontal: 8.0),
     );
   }
@@ -103,10 +101,7 @@ class _GroupListPageState extends State<GroupListPage> {
               ),
               ElevatedButton(
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => AllGroupsPage()),
-                  );
+                  navigateToPage(AllGroupsPage());
                 },
                 style: ElevatedButton.styleFrom(
                   primary: Color(0xFFFF6F61),
@@ -150,7 +145,7 @@ class _GroupListPageState extends State<GroupListPage> {
                 } else {
                   if (snapshot.hasData && snapshot.data != null) {
                     var groupsData = snapshot.data! as List<DocumentSnapshot>;
-                    print('Number of groups: ${groupsData.length}'); // 디버그용 로그
+                    print('Number of groups: ${groupsData.length}');
                     return buildGroupList(groupsData);
                   } else {
                     return Text('No data found');
@@ -159,7 +154,7 @@ class _GroupListPageState extends State<GroupListPage> {
               }
             },
           ),
-        )
+        ),
       ],
     );
   }
@@ -222,17 +217,14 @@ class _GroupListPageState extends State<GroupListPage> {
     QuerySnapshot querySnapshot;
 
     if (category.isEmpty || category == '전체보기') {
-      // 전체보기인 경우 모든 데이터 가져오기
       querySnapshot = await FirebaseFirestore.instance.collection('Moim').get();
     } else {
-      // 특정 카테고리에 대한 데이터 가져오기
       querySnapshot = await FirebaseFirestore.instance
           .collection('Moim')
           .where('moimCategory', isEqualTo: category)
           .get();
     }
 
-    // 디버깅을 위해 쿼리 결과를 출력
     querySnapshot.docs.forEach((doc) {
       print('Document ID: ${doc.id}, Data: ${doc.data()}');
     });
@@ -243,30 +235,47 @@ class _GroupListPageState extends State<GroupListPage> {
   Widget buildGroupList(List<DocumentSnapshot> groupsData) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12.0),
-      child: Expanded(
+      child: SizedBox(
+        height: 200.0, // 원하는 높이로 조절하세요
         child: ListView.builder(
-          shrinkWrap: true,
+          scrollDirection: Axis.horizontal,
           itemCount: groupsData.length,
           itemBuilder: (context, index) {
-            var group = groupsData[index].data() as Map<String, dynamic>? ??
-                {}; // 수정 부분
+            var groupSnapshot = groupsData[index];
+            var group = groupSnapshot.data() as Map<String, dynamic>? ?? {};
 
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 16.0),
-              child: Card(
-                elevation: 2.0,
-                color: Colors.white,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
+            return Card(
+              elevation: 2.0,
+              color: Colors.white,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    ListTile(
-                      leading: CircleAvatar(
-                        radius: 20.0,
-                        backgroundImage: AssetImage('assets/profile_image.jpg'),
-                      ),
-                      title: Text(group['moimTitle']),
-                      subtitle: Text(group['moimIntroduction'],
-                          style: TextStyle(color: Colors.grey)),
+                    CircleAvatar(
+                      radius: 20.0,
+                      backgroundImage: AssetImage('assets/profile_image.jpg'),
+                    ),
+                    SizedBox(width: 8.0),
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          group['moimTitle'],
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        Text(
+                          group['moimIntroduction'],
+                          style: TextStyle(
+                            color: Colors.grey,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
