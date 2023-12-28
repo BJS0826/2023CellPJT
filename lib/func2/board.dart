@@ -74,7 +74,7 @@ class _BoardPageState extends State<BoardPage> {
           .collection('board')
           .doc(widget.moimID)
           .collection("boardDetail")
-          .orderBy('createdTime', descending: false)
+          .orderBy('createdTime', descending: true)
           .get();
     } else {
       querySnapshot = await FirebaseFirestore.instance
@@ -82,7 +82,8 @@ class _BoardPageState extends State<BoardPage> {
           .doc(widget.moimID)
           .collection("boardDetail")
           .where('category', isEqualTo: category)
-          .orderBy('createdTime', descending: false)
+
+          //.orderBy('createdTime', descending: true)
           .get();
     }
 

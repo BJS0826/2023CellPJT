@@ -29,6 +29,7 @@ class _AboutGroupPageState extends State<AboutGroupPage> {
   Map<String, dynamic>? moimID1;
   String? moimID;
   User? user;
+  bool moimUser = false;
 
   @override
   void initState() {
@@ -62,10 +63,6 @@ class _AboutGroupPageState extends State<AboutGroupPage> {
         if (moimID == null || moimID!.length < 3) {
           moimID = "s5p3v7jmie";
         }
-
-        //moimID = snapshot["myMoimList"][0];
-        print("MoimID !!!!! :  $check");
-        print("MoimID !!!!! :  $moimID");
       });
     }
   }
@@ -97,6 +94,11 @@ class _AboutGroupPageState extends State<AboutGroupPage> {
                 var moimTitle = moimData['moimTitle'];
 
                 var moimImage = moimData['moimImage'];
+                Map<String, dynamic> moimMembers = moimData["moimMembers"];
+                for (String id in moimMembers.keys) {
+                  moimUser = true;
+                  break;
+                }
 
                 return Scaffold(
                   appBar: AppBar(
@@ -203,31 +205,33 @@ class _AboutGroupPageState extends State<AboutGroupPage> {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Container(
-                                    width: 80,
-                                    height: 40,
-                                    child: ElevatedButton(
-                                      onPressed: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                JoinMeetingPage(),
+                                  if (!moimUser)
+                                    Container(
+                                      width: 80,
+                                      height: 40,
+                                      child: ElevatedButton(
+                                        onPressed: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  JoinMeetingPage(
+                                                      moimID: moimID),
+                                            ),
+                                          );
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          padding: EdgeInsets.all(8),
+                                        ),
+                                        child: Text(
+                                          '모임 가입',
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 12,
                                           ),
-                                        );
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                        padding: EdgeInsets.all(8),
-                                      ),
-                                      child: Text(
-                                        '모임 가입',
-                                        style: TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 12,
                                         ),
                                       ),
                                     ),
-                                  ),
                                   SizedBox(width: 10), // 간격 추가
                                   Container(
                                     width: 80,

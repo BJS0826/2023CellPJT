@@ -2,6 +2,7 @@ import 'package:cellpjt/appbar/notification.dart';
 import 'package:cellpjt/bottomnav/vision.dart';
 import 'package:cellpjt/func2/aboutgroup.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cellpjt/appbar/creategroup.dart';
 import 'package:cellpjt/appbar/groupsearch.dart';
@@ -12,10 +13,7 @@ class MainFeedPage extends StatefulWidget {
 }
 
 class _MainFeedPageState extends State<MainFeedPage> {
-  bool _isLiked = false;
   int _likeCount = 0;
-
-  int _currentIndex = 0;
 
   bool _isExpanded = false;
 
@@ -28,10 +26,13 @@ class _MainFeedPageState extends State<MainFeedPage> {
   late List<DocumentSnapshot> _data = [];
   bool _isLoading = false;
   int _perPage = 10; // 한 번에 가져올 아이템 수
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  User? user;
 
   @override
   void initState() {
     super.initState();
+    user = _auth.currentUser;
     _getInitialData();
 
     _scrollController.addListener(() {
@@ -95,37 +96,105 @@ class _MainFeedPageState extends State<MainFeedPage> {
             Map<String, dynamic> preName = _data[index]['writer'];
             String name = preName.values.first.toString();
             String feedID = _data[index].id;
+
+            String feedImage = _data[index]['feedImage'];
+            String moimId = _data[index]['moimId'];
+            List favorite = _data[index]['favorite'];
+
             print(feedID);
-            return Card(
-              color: Colors.white,
-              elevation: 2.0,
-              margin: EdgeInsets.symmetric(vertical: 18.0, horizontal: 18.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  ListTile(
-                    leading: buildCircleAvatar(),
-                    title: Text(name),
-                    subtitle:
-                        Text('3시간 전', style: TextStyle(color: Colors.grey)),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => AboutGroupPage()),
+            return FutureBuilder(
+                future: _firestore.collection('Moim').doc(moimId).get(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  } else {
+                    if (snapshot.hasError) {
+                      return Center(
+                        child: Text('데이터를 불러올 수 없습니다.'),
                       );
-                    },
-                    child: buildPostImage(),
-                  ),
-                  buildLikeRow(),
-                  buildFeedContent(feedContent),
-                  buildCommentButton(),
-                  buildCommentPopup(),
-                ],
-              ),
-            );
+                    } else {
+                      final moimData = snapshot.data!;
+                      String moimTitle = moimData['moimTitle'];
+                      String moimImage = moimData['moimImage'];
+
+                      return Card(
+                        color: Colors.white,
+                        elevation: 2.0,
+                        margin: EdgeInsets.symmetric(
+                            vertical: 18.0, horizontal: 18.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            ListTile(
+                              leading: CircleAvatar(
+                                radius: 20.0,
+                                backgroundImage: NetworkImage(moimImage),
+                              ),
+                              title: Text(moimTitle),
+                              subtitle: Text(name,
+                                  style: TextStyle(color: Colors.grey)),
+                            ),
+                            GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => AboutGroupPage()),
+                                  );
+                                },
+                                child: Container(
+                                  height: 180,
+                                  decoration: BoxDecoration(
+                                      image: DecorationImage(
+                                          fit: BoxFit.fitWidth,
+                                          image: NetworkImage(feedImage))),
+                                )),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                // Row(
+                                //   children: [
+                                //     IconButton(
+                                //       icon: favorite.isNotEmpty
+                                //           ? Icon(Icons.favorite)
+                                //           : Icon(Icons.favorite_border),
+                                //       onPressed: () async {
+                                //         await _firestore
+                                //             .collection('feed')
+                                //             .doc(feedID)
+                                //             .update({
+                                //           "favorite": [user!.uid]
+                                //         });
+
+                                //         setState(() {});
+                                //       },
+                                //     ),
+                                //     SizedBox(width: 4.0),
+                                //     Text('${favorite.length}',
+                                //         style: TextStyle(color: Colors.grey)),
+                                //   ],
+                                // ),
+                                // TextButton(
+                                //   onPressed: () {
+                                //     setState(() {
+                                //       _isExpanded = !_isExpanded;
+                                //     });
+                                //   },
+                                //   child: Text(_isExpanded ? '접기' : '더보기'),
+                                // ),
+                              ],
+                            ),
+                            buildFeedContent(feedContent),
+                            // buildCommentButton(),
+                            // buildCommentPopup(),
+                          ],
+                        ),
+                      );
+                    }
+                  }
+                });
           }
         },
       ),
@@ -206,61 +275,6 @@ class _MainFeedPageState extends State<MainFeedPage> {
     return _isLoading ? CircularProgressIndicator() : Container();
   }
 
-  CircleAvatar buildCircleAvatar() {
-    return CircleAvatar(
-      radius: 20.0,
-      backgroundImage: AssetImage('assets/profile_image.jpg'),
-    );
-  }
-
-  Image buildPostImage() {
-    return Image.asset(
-      'assets/post_image.jpg',
-      fit: BoxFit.cover,
-      height: 200.0,
-    );
-  }
-
-  Row buildLikeRow() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        buildLikeButton(),
-        TextButton(
-          onPressed: () {
-            setState(() {
-              _isExpanded = !_isExpanded;
-            });
-          },
-          child: Text(_isExpanded ? '접기' : '더보기'),
-        ),
-      ],
-    );
-  }
-
-  Row buildLikeButton() {
-    return Row(
-      children: [
-        IconButton(
-          icon: _isLiked ? Icon(Icons.favorite) : Icon(Icons.favorite_border),
-          onPressed: () {
-            setState(() {
-              if (_isLiked) {
-                _isLiked = false;
-                _likeCount--;
-              } else {
-                _isLiked = true;
-                _likeCount++;
-              }
-            });
-          },
-        ),
-        SizedBox(width: 4.0),
-        Text('$_likeCount', style: TextStyle(color: Colors.grey)),
-      ],
-    );
-  }
-
   Widget buildCommentButton() {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -294,10 +308,11 @@ class _MainFeedPageState extends State<MainFeedPage> {
                 _isExpanded ? TextOverflow.visible : TextOverflow.ellipsis,
           ),
           SizedBox(height: 8.0),
-          Text(
-            '#경기 남부 #여행',
-            style: TextStyle(color: Colors.blue),
-          ),
+          // 해쉬태그 잠시 중지
+          // Text(
+          //   '#경기 남부 #여행',
+          //   style: TextStyle(color: Colors.blue),
+          // ),
         ],
       ),
     );

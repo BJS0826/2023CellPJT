@@ -1,10 +1,13 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class JoinMeetingPage extends StatelessWidget {
-  TextEditingController greetingController =
-      TextEditingController(); // 가입인사를 위한 컨트롤러 추가
+  final moimID;
 
-  JoinMeetingPage({super.key});
+  JoinMeetingPage({super.key, required this.moimID});
+
+  final TextEditingController greetingController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -63,9 +66,47 @@ class JoinMeetingPage extends StatelessWidget {
                           ),
                           onPrimary: Colors.white, // 텍스트 색상
                         ),
-                        onPressed: () {
-                          // 모임 가입 버튼
-                          _joinMeeting(context);
+                        onPressed: () async {
+                          if (greetingController.text.isNotEmpty) {
+                            final user = FirebaseAuth.instance.currentUser;
+
+                            final userData = await FirebaseFirestore.instance
+                                .collection('user')
+                                .doc(user!.uid)
+                                .get();
+                            await FirebaseFirestore.instance
+                                .collection('totalChat')
+                                .doc(moimID)
+                                .collection('chat')
+                                .add({
+                              'text': greetingController.text,
+                              'time': Timestamp.now(),
+                              'userID': user.uid,
+                              'userName': userData.data()!['userName'],
+                              'userImage': userData['picked_image']
+                            });
+                            await FirebaseFirestore.instance
+                                .collection('user')
+                                .doc(user.uid)
+                                .update({
+                              'myMoimList.${moimID}': DateTime.now(),
+                            });
+                            await FirebaseFirestore.instance
+                                .collection('Moim')
+                                .doc(moimID)
+                                .update({
+                              'moimMembers.${user.uid}':
+                                  userData.data()!['userName'],
+                            });
+
+                            Navigator.pop(context);
+                          } else {
+                            Navigator.pop(context);
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content: Text("모임가입 실패"),
+                              backgroundColor: Colors.blue,
+                            ));
+                          }
                         },
                         child: Text('모임 가입'),
                       ),
@@ -78,13 +119,5 @@ class JoinMeetingPage extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  void _joinMeeting(BuildContext context) {
-    // 여기에 모임 가입 로직을 추가하세요.
-    // 가입인사 등을 활용하여 모임 가입을 처리할 수 있습니다.
-    // 예를 들면, 서버에 가입 요청을 보내거나 다른 필요한 작업을 수행할 수 있습니다.
-    // 가입이 성공하면 다음 화면으로 이동하는 등의 처리를 할 수 있습니다.
-    // 예시로 Navigator.push() 등을 사용하여 다음 화면으로 이동할 수 있습니다.
   }
 }
