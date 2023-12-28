@@ -493,6 +493,7 @@ class _AboutGroupPageState extends State<AboutGroupPage> {
                                     ),
                                   ],
                                 ),
+                                /*
                                 Divider(
                                   // 회색 줄 추가
                                   color: Colors.grey.withOpacity(0.3), // 회색 설정
@@ -623,6 +624,10 @@ class _AboutGroupPageState extends State<AboutGroupPage> {
                               ],
                             ),
                           ),
+                          */
+                              ],
+                            ),
+                          ),
                           SizedBox(height: 16.0),
                           StreamBuilder<QuerySnapshot>(
                             stream: firestore
@@ -677,6 +682,32 @@ class _AboutGroupPageState extends State<AboutGroupPage> {
                                   String selectedMeeting =
                                       sortedData[index]["selectedMeeting"];
                                   String feedId = sortedData[index]['id'];
+
+                                  return Card(
+                                      child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.stretch,
+                                          children: [
+                                        Flexible(
+                                          flex: 3,
+                                          child: Image.network(
+                                            feedImage,
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ),
+                                        // 텍스트를 표시하는 부분
+                                        Flexible(
+                                            flex: 2,
+                                            child: Padding(
+                                                padding:
+                                                    const EdgeInsets.all(8.0),
+                                                child: Text(
+                                                  feedContent,
+                                                  maxLines: 3,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                )))
+                                      ]));
 
                                   return InkWell(
                                     onTap: () async {
