@@ -16,6 +16,10 @@ class _ProfilePageState extends State<ProfilePage> {
   FirebaseAuth auth = FirebaseAuth.instance;
   User? user;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  bool exercise = false;
+  bool economy = false;
+  bool art = false;
+  bool music = false;
 
   @override
   void initState() {
@@ -106,9 +110,25 @@ class _ProfilePageState extends State<ProfilePage> {
                 Map<String, dynamic> myMoimList = userData["myMoimList"];
                 String pickedImage = userData["picked_image"];
                 String userName = userData["userName"];
+                List interestsList = userData["interests"];
+
+                for (String interests in interestsList) {
+                  if (interests.contains('운동')) {
+                    exercise = true;
+                  }
+                  if (interests.contains('경제')) {
+                    economy = true;
+                  }
+                  if (interests.contains('예술')) {
+                    art = true;
+                  }
+                  if (interests.contains('음악')) {
+                    music = true;
+                  }
+                }
 
                 print(
-                    "테스트 이메일 : $email / 모임리스트 : $myMoimList / 사진url : $pickedImage / 이름 : $userName");
+                    "테스트 !! 이메일 : $email / 모임리스트 : $myMoimList / 사진url : $pickedImage / 이름 : $userName");
 
                 List<Future<DocumentSnapshot<Map<String, dynamic>>>> datasList =
                     [];
@@ -143,7 +163,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                       fontWeight: FontWeight.bold),
                                 ),
                                 Text(
-                                  '한국의 일론 머스크',
+                                  'point : 0',
                                   style: TextStyle(fontSize: 16.0),
                                 ),
                               ],
@@ -151,12 +171,13 @@ class _ProfilePageState extends State<ProfilePage> {
                           ],
                         ),
                         ElevatedButton(
-                          onPressed: () {
-                            Navigator.push(
+                          onPressed: () async {
+                            await Navigator.push(
                               context,
                               MaterialPageRoute(
                                   builder: (context) => EditProfilePage()),
                             );
+                            setState(() {});
                           },
                           style: ElevatedButton.styleFrom(
                             primary: Color(0xFFFF6F61),
@@ -173,7 +194,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       ],
                     ),
                     SizedBox(height: 32.0),
-                    buildInterests(),
+                    buildInterests(interestsList),
                     const SizedBox(height: 16.0),
                     buildLocations(),
                     const SizedBox(height: 16.0),
@@ -372,7 +393,7 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget buildInterests() {
+  Widget buildInterests(List interestsList) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -381,41 +402,69 @@ class _ProfilePageState extends State<ProfilePage> {
           style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 8.0),
-        buildInterestList(),
+        buildInterestList(interestsList),
       ],
     );
   }
 
-  Widget buildInterestList() {
+  Widget buildInterestList(List interestsList) {
     return ListView(
       shrinkWrap: true,
       children: [
-        buildInterestItem('운동', 'assets/category_sports.png'),
-        buildInterestItem('경제', 'assets/category_economy.png'),
-        buildInterestItem('예술', 'assets/category_art.png'),
-        buildInterestItem('음악', 'assets/category_music.png'),
+        buildInterestItem(
+            '운동', 'assets/category_sports.png', exercise, interestsList),
+        buildInterestItem(
+            '경제', 'assets/category_economy.png', economy, interestsList),
+        buildInterestItem('예술', 'assets/category_art.png', art, interestsList),
+        buildInterestItem(
+            '음악', 'assets/category_music.png', music, interestsList),
         // ... 추가 관심사 아이템
       ],
     );
   }
 
-  Widget buildInterestItem(String interest, String imagePath) {
-    return ListTile(
-      leading: ClipOval(
-        child: Container(
-          width: 25.0, // 조절된 원의 크기
-          height: 25.0, // 조절된 원의 크기
-          child: Image.asset(
-            imagePath,
-            fit: BoxFit.cover,
-          ),
-        ),
-      ),
-      title: Text(interest),
-      onTap: () {
-        // 관심사 선택 처리
-      },
-    );
+  Widget buildInterestItem(
+      String interest, String imagePath, bool choice, List interestsList) {
+    return FutureBuilder(
+        future: _firestore.collection("user").doc(user!.uid).get(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return Text('');
+          } else {
+            var data = snapshot.data;
+            List interestsLists = data?['interests'];
+            bool choice = interestsLists.contains(interest);
+
+            return ListTile(
+              leading: ClipOval(
+                child: Container(
+                  width: 25.0, // 조절된 원의 크기
+                  height: 25.0, // 조절된 원의 크기
+                  child: Image.asset(
+                    imagePath,
+                    fit: BoxFit.cover,
+                    color: choice ? null : Colors.grey,
+                  ),
+                ),
+              ),
+              title: Text(interest),
+              onTap: () async {
+                if (choice) {
+                  interestsLists.remove(interest);
+                } else {
+                  interestsLists.add(interest);
+                }
+
+                await _firestore.collection('user').doc(user!.uid).update(
+                  {
+                    'interests': interestsLists,
+                  },
+                );
+                setState(() {});
+              },
+            );
+          }
+        });
   }
 
   Widget buildLocations() {
@@ -433,15 +482,26 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Widget buildLocationList() {
-    return ListView.builder(
-      shrinkWrap: true,
-      itemCount: 2,
-      itemBuilder: (context, index) {
-        return ListTile(
-          title: Text('서울'), // 지역명 또는 선택된 지역
-        );
-      },
-    );
+    return FutureBuilder(
+        future: _firestore.collection("user").doc(user!.uid).get(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return SizedBox();
+          } else {
+            var data = snapshot.data!;
+            List Location = data['myLocation'];
+            return ListView.builder(
+              //if else // location field 추가 => 회원가입시, 필드 추가
+              shrinkWrap: true,
+              itemCount: Location.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  title: Text(Location[index]), // 지역명 또는 선택된 지역
+                );
+              },
+            );
+          }
+        });
   }
 
   Widget buildMyGroupsList() {

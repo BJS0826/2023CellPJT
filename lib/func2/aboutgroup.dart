@@ -96,8 +96,10 @@ class _AboutGroupPageState extends State<AboutGroupPage> {
                 var moimImage = moimData['moimImage'];
                 Map<String, dynamic> moimMembers = moimData["moimMembers"];
                 for (String id in moimMembers.keys) {
-                  moimUser = true;
-                  break;
+                  if (user!.uid == id) {
+                    moimUser = true;
+                    break;
+                  }
                 }
 
                 return Scaffold(

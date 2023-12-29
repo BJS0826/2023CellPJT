@@ -269,79 +269,95 @@ class _MembersPageState extends State<MembersPage> {
                                                   ElevatedButton(
                                                     onPressed: () async {
                                                       // 모달 창을 표시하기 전에 확인 다이얼로그를 표시
-                                                      bool confirmTransfer =
-                                                          await showDialog(
-                                                        context: context,
-                                                        builder: (BuildContext
-                                                            context) {
-                                                          return AlertDialog(
-                                                            title:
-                                                                Text('모임장 양도'),
+                                                      if (user!.uid !=
+                                                          moimJang.keys.first) {
+                                                        ScaffoldMessenger.of(
+                                                                context)
+                                                            .showSnackBar(
+                                                          const SnackBar(
                                                             content: Text(
-                                                                '정말 양도하시겠습니까?'),
-                                                            actions: <Widget>[
-                                                              TextButton(
-                                                                onPressed: () {
-                                                                  // 확인 버튼을 누르면 true를 반환
-                                                                  Navigator.of(
-                                                                          context)
-                                                                      .pop(
-                                                                          true);
-                                                                },
-                                                                child:
-                                                                    Text('확인'),
-                                                              ),
-                                                              TextButton(
-                                                                onPressed: () {
-                                                                  // 취소 버튼을 누르면 false를 반환
-                                                                  Navigator.of(
-                                                                          context)
-                                                                      .pop(
-                                                                          false);
-                                                                },
-                                                                child:
-                                                                    Text('취소'),
-                                                              ),
-                                                            ],
-                                                          );
-                                                        },
-                                                      );
+                                                                "모임장만 모임장 양도를 할 수 있습니다"),
+                                                            backgroundColor:
+                                                                Colors.blue,
+                                                          ),
+                                                        );
+                                                      } else {
+                                                        bool confirmTransfer =
+                                                            await showDialog(
+                                                          context: context,
+                                                          builder: (BuildContext
+                                                              context) {
+                                                            return AlertDialog(
+                                                              title: Text(
+                                                                  '모임장 양도'),
+                                                              content: Text(
+                                                                  '정말 양도하시겠습니까?'),
+                                                              actions: <Widget>[
+                                                                TextButton(
+                                                                  onPressed:
+                                                                      () {
+                                                                    // 확인 버튼을 누르면 true를 반환
+                                                                    Navigator.of(
+                                                                            context)
+                                                                        .pop(
+                                                                            true);
+                                                                  },
+                                                                  child: Text(
+                                                                      '확인'),
+                                                                ),
+                                                                TextButton(
+                                                                  onPressed:
+                                                                      () {
+                                                                    // 취소 버튼을 누르면 false를 반환
+                                                                    Navigator.of(
+                                                                            context)
+                                                                        .pop(
+                                                                            false);
+                                                                  },
+                                                                  child: Text(
+                                                                      '취소'),
+                                                                ),
+                                                              ],
+                                                            );
+                                                          },
+                                                        );
 
-                                                      // 확인 버튼을 눌렀을 때 양도 이벤트 실행
-                                                      if (confirmTransfer ==
-                                                          true) {
-                                                        try {
-                                                          DocumentReference
-                                                              moimRef =
-                                                              FirebaseFirestore
-                                                                  .instance
-                                                                  .collection(
-                                                                      'Moim')
-                                                                  .doc(widget
-                                                                      .moimID);
+                                                        // 확인 버튼을 눌렀을 때 양도 이벤트 실행
+                                                        if (confirmTransfer ==
+                                                            true) {
+                                                          try {
+                                                            DocumentReference
+                                                                moimRef =
+                                                                FirebaseFirestore
+                                                                    .instance
+                                                                    .collection(
+                                                                        'Moim')
+                                                                    .doc(widget
+                                                                        .moimID);
 
-                                                          Map<String, dynamic>
-                                                              updatedLeaderData =
-                                                              {
-                                                            managementId:
-                                                                userName
-                                                          };
+                                                            Map<String, dynamic>
+                                                                updatedLeaderData =
+                                                                {
+                                                              managementId:
+                                                                  userName
+                                                            };
 
-                                                          Map<String, dynamic>
-                                                              dataToUpdate = {
-                                                            'moimLeader':
-                                                                updatedLeaderData,
-                                                          };
+                                                            Map<String, dynamic>
+                                                                dataToUpdate = {
+                                                              'moimLeader':
+                                                                  updatedLeaderData,
+                                                            };
 
-                                                          await moimRef.update(
-                                                              dataToUpdate);
+                                                            await moimRef.update(
+                                                                dataToUpdate);
 
-                                                          print(
-                                                              'Moim 문서의 "moimLeader" 필드가 업데이트되었습니다.');
-                                                          setState(() {});
-                                                        } catch (e) {
-                                                          print(
-                                                              'Moim 문서 "moimLeader" 필드 업데이트 오류: $e');
+                                                            print(
+                                                                'Moim 문서의 "moimLeader" 필드가 업데이트되었습니다.');
+                                                            setState(() {});
+                                                          } catch (e) {
+                                                            print(
+                                                                'Moim 문서 "moimLeader" 필드 업데이트 오류: $e');
+                                                          }
                                                         }
                                                       }
                                                     },
@@ -412,6 +428,19 @@ class _MembersPageState extends State<MembersPage> {
                                                             const SnackBar(
                                                               content: Text(
                                                                   "모임장은 운영진에서 해제 할 수 없습니다"),
+                                                              backgroundColor:
+                                                                  Colors.blue,
+                                                            ),
+                                                          );
+                                                        } else if (!oonYoungJinList
+                                                            .containsKey(
+                                                                user!.uid)) {
+                                                          ScaffoldMessenger.of(
+                                                                  context)
+                                                              .showSnackBar(
+                                                            const SnackBar(
+                                                              content: Text(
+                                                                  "모임장만 운영진 해제가 가능합니다"),
                                                               backgroundColor:
                                                                   Colors.blue,
                                                             ),
@@ -541,62 +570,78 @@ class _MembersPageState extends State<MembersPage> {
                                                   ElevatedButton(
                                                     onPressed: () async {
                                                       // 모달 창을 표시하기 전에 확인 다이얼로그를 표시
-                                                      bool confirmAppointment =
-                                                          await showDialog(
-                                                        context: context,
-                                                        builder: (BuildContext
-                                                            context) {
-                                                          return AlertDialog(
-                                                            title: Text('임명'),
+                                                      if (!management) {
+                                                        ScaffoldMessenger.of(
+                                                                context)
+                                                            .showSnackBar(
+                                                          const SnackBar(
                                                             content: Text(
-                                                                '사용자를 모임장으로 임명 하시겠습니까?'),
-                                                            actions: <Widget>[
-                                                              TextButton(
-                                                                onPressed: () {
-                                                                  // 확인 버튼을 누르면 true를 반환
-                                                                  Navigator.of(
-                                                                          context)
-                                                                      .pop(
-                                                                          true);
-                                                                },
-                                                                child:
-                                                                    Text('확인'),
-                                                              ),
-                                                              TextButton(
-                                                                onPressed: () {
-                                                                  // 취소 버튼을 누르면 false를 반환
-                                                                  Navigator.of(
-                                                                          context)
-                                                                      .pop(
-                                                                          false);
-                                                                },
-                                                                child:
-                                                                    Text('취소'),
-                                                              ),
-                                                            ],
-                                                          );
-                                                        },
-                                                      );
+                                                                "임명은 관리자만 할 수 있습니다"),
+                                                            backgroundColor:
+                                                                Colors.blue,
+                                                          ),
+                                                        );
+                                                      } else {
+                                                        bool
+                                                            confirmAppointment =
+                                                            await showDialog(
+                                                          context: context,
+                                                          builder: (BuildContext
+                                                              context) {
+                                                            return AlertDialog(
+                                                              title: Text('임명'),
+                                                              content: Text(
+                                                                  '사용자를 운영진으로 임명 하시겠습니까?'),
+                                                              actions: <Widget>[
+                                                                TextButton(
+                                                                  onPressed:
+                                                                      () {
+                                                                    // 확인 버튼을 누르면 true를 반환
+                                                                    Navigator.of(
+                                                                            context)
+                                                                        .pop(
+                                                                            true);
+                                                                  },
+                                                                  child: Text(
+                                                                      '확인'),
+                                                                ),
+                                                                TextButton(
+                                                                  onPressed:
+                                                                      () {
+                                                                    // 취소 버튼을 누르면 false를 반환
+                                                                    Navigator.of(
+                                                                            context)
+                                                                        .pop(
+                                                                            false);
+                                                                  },
+                                                                  child: Text(
+                                                                      '취소'),
+                                                                ),
+                                                              ],
+                                                            );
+                                                          },
+                                                        );
 
-                                                      // 확인 버튼을 눌렀을 때 임명 이벤트 실행
-                                                      if (confirmAppointment ==
-                                                          true) {
-                                                        try {
-                                                          await firestore
-                                                              .collection(
-                                                                  'Moim')
-                                                              .doc(
-                                                                  widget.moimID)
-                                                              .update({
-                                                            'oonYoungJinList.$id':
-                                                                userName,
-                                                          });
-                                                          setState(() {});
-                                                          print(
-                                                              '사용자를 모임장으로 임명 했습니다.');
-                                                        } catch (e) {
-                                                          print(
-                                                              '사용자 추가 중 오류가 발생했습니다: $e');
+                                                        // 확인 버튼을 눌렀을 때 임명 이벤트 실행
+                                                        if (confirmAppointment ==
+                                                            true) {
+                                                          try {
+                                                            await firestore
+                                                                .collection(
+                                                                    'Moim')
+                                                                .doc(widget
+                                                                    .moimID)
+                                                                .update({
+                                                              'oonYoungJinList.$id':
+                                                                  userName,
+                                                            });
+                                                            setState(() {});
+                                                            print(
+                                                                '사용자를 모임장으로 임명 했습니다.');
+                                                          } catch (e) {
+                                                            print(
+                                                                '사용자 추가 중 오류가 발생했습니다: $e');
+                                                          }
                                                         }
                                                       }
                                                     },
@@ -696,6 +741,21 @@ class _MembersPageState extends State<MembersPage> {
                                                               );
                                                             } else {
                                                               // 운영진이 아닌 경우 강퇴 진행
+                                                              Map<String,
+                                                                      dynamic>
+                                                                  updateData = {
+                                                                'myMoimList.${widget.moimID}':
+                                                                    FieldValue
+                                                                        .delete(),
+                                                              };
+                                                              await firestore
+                                                                  .collection(
+                                                                      'user')
+                                                                  .doc(
+                                                                      user!.uid)
+                                                                  .update(
+                                                                      updateData);
+
                                                               await firestore
                                                                   .collection(
                                                                       'Moim')
