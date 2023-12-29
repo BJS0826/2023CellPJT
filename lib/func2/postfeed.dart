@@ -78,7 +78,7 @@ class _PostFeedPageState extends State<PostFeedPage> {
             'selectedMeeting': selectedMeeting,
             'feedContent': feedContentController.text,
             "feedImage": imageURL,
-            "favorite": 0,
+            "favorite": List<String>,
             "viewNumber": 0
           });
 

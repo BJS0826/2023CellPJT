@@ -119,7 +119,7 @@ class _GroupListPageState extends State<GroupListPage> {
           ),
         ),
         SizedBox(height: 16.0),
-        Flexible(
+        SizedBox(
           child: Padding(
             padding: const EdgeInsets.only(left: 16.0),
             child: Text(
@@ -236,48 +236,54 @@ class _GroupListPageState extends State<GroupListPage> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12.0),
       child: SizedBox(
-        height: 200.0, // 원하는 높이로 조절하세요
         child: ListView.builder(
-          scrollDirection: Axis.horizontal,
           itemCount: groupsData.length,
           itemBuilder: (context, index) {
             var groupSnapshot = groupsData[index];
             var group = groupSnapshot.data() as Map<String, dynamic>? ?? {};
 
-            return Card(
-              elevation: 2.0,
-              color: Colors.white,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    CircleAvatar(
-                      radius: 20.0,
-                      backgroundImage: AssetImage('assets/profile_image.jpg'),
-                    ),
-                    SizedBox(width: 8.0),
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          group['moimTitle'],
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            overflow: TextOverflow.ellipsis,
+            return GestureDetector(
+              onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        AboutGroupPage(moimID: groupSnapshot.id),
+                  )),
+              child: Card(
+                elevation: 2.0,
+                color: Colors.white,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CircleAvatar(
+                        radius: 20.0,
+                        backgroundImage: NetworkImage(group['moimImage']),
+                      ),
+                      SizedBox(width: 8.0),
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            group['moimTitle'],
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
-                        ),
-                        Text(
-                          group['moimIntroduction'],
-                          style: TextStyle(
-                            color: Colors.grey,
-                            overflow: TextOverflow.ellipsis,
+                          Text(
+                            group['moimIntroduction'],
+                            style: TextStyle(
+                              color: Colors.grey,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
             );
