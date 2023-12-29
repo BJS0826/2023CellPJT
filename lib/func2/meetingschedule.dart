@@ -289,6 +289,34 @@ class _MeetingSchedulePageState extends State<MeetingSchedulePage> {
                   },
                   child: Text("정모 생성"),
                 ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    primary: Color(0xFFFF6F61),
+                    onPrimary: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    padding: EdgeInsets.all(20),
+                  ),
+                  onPressed: () async {
+                    showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: Text("알림"),
+                        content: Text("정모 참여 신청이 완료되었습니다."),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: Text("확인"),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                  child: Text("정모 참여"),
+                ),
               ],
             ),
           ),

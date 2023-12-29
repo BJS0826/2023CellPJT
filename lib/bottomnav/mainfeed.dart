@@ -50,7 +50,7 @@ class _MainFeedPageState extends State<MainFeedPage> {
 
     QuerySnapshot<Map<String, dynamic>> querySnapshot = await _firestore
         .collection('feed')
-        .orderBy('time')
+        .orderBy('time', descending: true)
         .limit(_perPage)
         .get();
 
@@ -99,7 +99,6 @@ class _MainFeedPageState extends State<MainFeedPage> {
 
             String feedImage = _data[index]['feedImage'];
             String moimId = _data[index]['moimId'];
-            List favorite = _data[index]['favorite'];
 
             print(feedID);
             return FutureBuilder(
