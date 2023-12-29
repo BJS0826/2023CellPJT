@@ -201,6 +201,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                             .collection('user')
                             .doc(user!.uid)
                             .update(updateUserData);
+                        Navigator.pop(context);
                       },
                       style: ElevatedButton.styleFrom(
                         primary: Color(0xFFFF6F61), // 코랄 핑크 색상
