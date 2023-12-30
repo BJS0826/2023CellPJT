@@ -813,11 +813,12 @@ class FeedDetailPage extends StatelessWidget {
                       )),
                   child: Row(
                     children: [
-                      CircleAvatar(
-                        radius: 20.0,
-                        backgroundColor: Colors.grey,
-                        child: Image.network(
-                          writerImage,
+                      ClipOval(
+                        child: Image(
+                          image: NetworkImage(writerImage),
+                          width: 40.0,
+                          height: 40.0,
+                          fit: BoxFit.cover,
                         ),
                       ),
                       SizedBox(width: 12.0),
