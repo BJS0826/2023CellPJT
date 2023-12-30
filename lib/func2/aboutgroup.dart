@@ -8,6 +8,7 @@ import 'package:cellpjt/func2/meetingschedule.dart';
 import 'package:cellpjt/func2/meetingsettings.dart';
 import 'package:cellpjt/func2/pointshop.dart';
 import 'package:cellpjt/func2/postfeed.dart';
+import 'package:cellpjt/func2/show_profile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -796,28 +797,36 @@ class FeedDetailPage extends StatelessWidget {
           Map<String, dynamic> writer = data["writer"];
           Timestamp time = data["time"];
           DateTime dateTime = time.toDate();
+          String writerImage = data["writerImage"];
 
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 20.0,
-                      backgroundColor: Colors.grey,
-                      // child: Image.network(
-                      //   writer['profileImageUrl'],
-                      //   fit: BoxFit.cover,
-                      // ),
-                    ),
-                    SizedBox(width: 12.0),
-                    Text(
-                      '${writer.values.first.toString()}',
-                      style: TextStyle(fontSize: 16.0),
-                    ),
-                  ],
+                GestureDetector(
+                  onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            ShowProfile(userID: writer.keys.first),
+                      )),
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 20.0,
+                        backgroundColor: Colors.grey,
+                        child: Image.network(
+                          writerImage,
+                        ),
+                      ),
+                      SizedBox(width: 12.0),
+                      Text(
+                        '${writer.values.first.toString()}',
+                        style: TextStyle(fontSize: 16.0),
+                      ),
+                    ],
+                  ),
                 ),
                 SizedBox(height: 16.0),
                 Container(

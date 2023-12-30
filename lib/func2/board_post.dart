@@ -50,6 +50,7 @@ class _BoardPostPageState extends State<BoardPostPage> {
     String content = contentController.text;
     DateTime now = DateTime.now();
     String userName = "";
+    String writerImage = '';
 
     await FirebaseFirestore.instance
         .collection('user') // 컬렉션 이름
@@ -60,6 +61,7 @@ class _BoardPostPageState extends State<BoardPostPage> {
         // 'userName' 필드에 접근하여 값 가져오기
         userName =
             documentSnapshot.get('userName'); // 'userName'은 실제 필드명에 맞게 수정하세요.
+        writerImage = documentSnapshot.get('picked_image');
       } else {
         print('Document does not exist');
       }
@@ -89,7 +91,8 @@ class _BoardPostPageState extends State<BoardPostPage> {
           "category": selectedCategory,
           'createdTime': now,
           "writer": userName,
-          "writerId": user!.uid
+          "writerId": user!.uid,
+          "writerImage": writerImage
         });
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text("업데이트 완료"),
