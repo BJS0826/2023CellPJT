@@ -23,6 +23,7 @@ class _MeetingSchedulePageState extends State<MeetingSchedulePage> {
   Map<DateTime, List<Event>> _events = {};
   DateTime _selectedDate = DateTime.now();
   bool total = false;
+  int joinNumber = 0;
 
   @override
   void initState() {
@@ -51,15 +52,18 @@ class _MeetingSchedulePageState extends State<MeetingSchedulePage> {
         DateTime date = DateTime.utc(predate.toDate().year,
             predate.toDate().month, predate.toDate().day);
         // 혹은 DateTime.utc(predate.toDate().year, predate.toDate().month, predate.toDate().day);
-
+        var feedID = doc.id;
         var moimContent = (doc.data() as Map)['moimContent'];
         var moimLocation = (doc.data() as Map)['moimLocation'];
         var moimTitle = (doc.data() as Map)['moimTitle'];
+        var limitNumber = (doc.data() as Map)['limitNumber'];
+        var join = (doc.data() as Map)['join'];
 
         // 가져온 데이터를 TableCalendar에 맞게 변환하여 _events 맵에 추가
         _events[date] ??= [];
 
-        _events[date]!.add(Event(moimTitle, moimContent, moimLocation));
+        _events[date]!.add(Event(
+            moimTitle, moimContent, moimLocation, limitNumber, join, feedID));
       });
 
       setState(() {});
@@ -87,15 +91,18 @@ class _MeetingSchedulePageState extends State<MeetingSchedulePage> {
         DateTime date = DateTime.utc(predate.toDate().year,
             predate.toDate().month, predate.toDate().day);
         // 혹은 DateTime.utc(predate.toDate().year, predate.toDate().month, predate.toDate().day);
-
+        var feedID = doc.id;
         var moimContent = (doc.data() as Map)['moimContent'];
         var moimLocation = (doc.data() as Map)['moimLocation'];
         var moimTitle = (doc.data() as Map)['moimTitle'];
+        var limitNumber = (doc.data() as Map)['limitNumber'];
+        var join = (doc.data() as Map)['join'];
 
         // 가져온 데이터를 TableCalendar에 맞게 변환하여 _events 맵에 추가
         _events[date] ??= [];
 
-        _events[date]!.add(Event(moimTitle, moimContent, moimLocation));
+        _events[date]!.add(Event(
+            moimTitle, moimContent, moimLocation, limitNumber, join, feedID));
       });
 
       setState(() {});
@@ -179,17 +186,172 @@ class _MeetingSchedulePageState extends State<MeetingSchedulePage> {
                 ),
               ),
             ),
+
             ListView.builder(
               shrinkWrap: true,
               physics: NeverScrollableScrollPhysics(),
               itemCount: eventsForDate.length,
               itemBuilder: (BuildContext context, int index) {
                 Event event = eventsForDate[index];
+                joinNumber = event.join.length;
+
                 // You can design the ListTile or widget to display event details
-                return ListTile(
-                  title: Text(event.title),
-                  subtitle: Text(event.content),
-                  // Add more details as needed
+                return SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.9,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          children: [Text(event.title), Text(event.content)],
+                        ),
+                        // ListTile(
+                        //   title: Text(event.title),
+                        //   subtitle: Text(event.content),
+                        //   // Add more details as needed
+                        // )
+                        // ,
+                        Row(
+                          children: [
+                            Text('참여 ($joinNumber/${event.limitNumber})'),
+                            SizedBox(
+                              width: 20,
+                            ),
+                            event.join.contains(user!.uid)
+                                ? Padding(
+                                    padding:
+                                        const EdgeInsets.fromLTRB(0, 3, 6, 0),
+                                    child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        primary: Color(0xFFFF6F61),
+                                        onPrimary: Colors.white,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                        padding: EdgeInsets.all(12),
+                                      ),
+                                      onPressed: () async {
+                                        if (event.limitNumber == joinNumber) {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(SnackBar(
+                                                  content:
+                                                      Text('참여 마감 되었습니다.')));
+                                        } else {
+                                          Map<String, dynamic> joinDeleteData =
+                                              {
+                                            'join': FieldValue.arrayRemove(
+                                              [user!.uid],
+                                            ),
+                                          };
+                                          try {
+                                            _firestore
+                                                .collection('totalMoimSchedule')
+                                                .doc(widget.moimID)
+                                                .collection("moimSchedule")
+                                                .doc(event.feedID)
+                                                .update(joinDeleteData);
+
+                                            showDialog(
+                                              context: context,
+                                              builder: (context) => AlertDialog(
+                                                title: Text("알림"),
+                                                content:
+                                                    Text("정모 참여 취소 완료되었습니다."),
+                                                actions: [
+                                                  TextButton(
+                                                    onPressed: () {
+                                                      setState(() {
+                                                        _getEventsFromFirebaseFromToday();
+                                                      });
+                                                      Navigator.of(context)
+                                                          .pop();
+                                                    },
+                                                    child: Text("확인"),
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+
+                                            // 이벤트를 Firebase에 추가한 후, 화면을 다시 빌드하여 새로운 이벤트를 표시
+                                          } catch (e) {
+                                            print('Firebase에 이벤트 추가 오류: $e');
+                                          }
+                                        }
+                                      },
+                                      child: Text("참여 취소"),
+                                    ),
+                                  )
+                                : Padding(
+                                    padding:
+                                        const EdgeInsets.fromLTRB(0, 3, 6, 0),
+                                    child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        primary: Color(0xFFFF6F61),
+                                        onPrimary: Colors.white,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                        padding: EdgeInsets.all(12),
+                                      ),
+                                      onPressed: () async {
+                                        if (event.limitNumber == joinNumber) {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(SnackBar(
+                                                  content:
+                                                      Text('참여 마감 되었습니다.')));
+                                        } else {
+                                          Map<String, dynamic> joinUpdateData =
+                                              {
+                                            'join': FieldValue.arrayUnion(
+                                              [user!.uid],
+                                            ),
+                                          };
+                                          try {
+                                            _firestore
+                                                .collection('totalMoimSchedule')
+                                                .doc(widget.moimID)
+                                                .collection("moimSchedule")
+                                                .doc(event.feedID)
+                                                .update(joinUpdateData);
+
+                                            showDialog(
+                                              context: context,
+                                              builder: (context) => AlertDialog(
+                                                title: Text("알림"),
+                                                content:
+                                                    Text("정모 참여 신청이 완료되었습니다."),
+                                                actions: [
+                                                  TextButton(
+                                                    onPressed: () {
+                                                      setState(() {
+                                                        _getEventsFromFirebaseFromToday();
+                                                      });
+                                                      Navigator.of(context)
+                                                          .pop();
+                                                    },
+                                                    child: Text("확인"),
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+
+                                            // 이벤트를 Firebase에 추가한 후, 화면을 다시 빌드하여 새로운 이벤트를 표시
+                                          } catch (e) {
+                                            print('Firebase에 이벤트 추가 오류: $e');
+                                          }
+                                        }
+                                      },
+                                      child: Text("정모 참여"),
+                                    ),
+                                  ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
                 );
               },
             ),
@@ -289,34 +451,6 @@ class _MeetingSchedulePageState extends State<MeetingSchedulePage> {
                   },
                   child: Text("정모 생성"),
                 ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    primary: Color(0xFFFF6F61),
-                    onPrimary: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    padding: EdgeInsets.all(20),
-                  ),
-                  onPressed: () async {
-                    showDialog(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        title: Text("알림"),
-                        content: Text("정모 참여 신청이 완료되었습니다."),
-                        actions: [
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                            child: Text("확인"),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                  child: Text("정모 참여"),
-                ),
               ],
             ),
           ),
@@ -386,10 +520,14 @@ class MeetingItem extends StatelessWidget {
 }
 
 class Event {
+  final String feedID;
   final String title;
   final String content;
   final String location;
-  Event(this.title, this.content, this.location);
+  final int limitNumber;
+  final List join;
+  Event(this.title, this.content, this.location, this.limitNumber, this.join,
+      this.feedID);
 }
 
 class AddBottomSheet extends StatefulWidget {
@@ -553,6 +691,7 @@ class _AddBottomSheetState extends State<AddBottomSheet> {
                       onPressed: () {
                         if (picked != null) {
                           _addEventToFirebase(
+                              _selectedValue,
                               selectedDate,
                               picked!,
                               _titleController.text,
@@ -639,11 +778,12 @@ class _AddBottomSheetState extends State<AddBottomSheet> {
     );
   }
 
-  Future<void> _addEventToFirebase(DateTime selectedDate, TimeOfDay picked,
-      String title, String location, String content) async {
+  Future<void> _addEventToFirebase(int _selectedValue, DateTime selectedDate,
+      TimeOfDay picked, String title, String location, String content) async {
     DateTime combinedDateTime = DateTime(selectedDate.year, selectedDate.month,
         selectedDate.day, picked.hour, picked.minute);
     Timestamp timestamp = Timestamp.fromDate(combinedDateTime);
+    List<String> data43 = [];
     print('모임명 : $title');
     print('모임장소 : $location');
     print('타임스템프 : $timestamp');
@@ -657,6 +797,8 @@ class _AddBottomSheetState extends State<AddBottomSheet> {
         'moimLocation': location,
         'moimTitle': title,
         'moimContent': content,
+        'limitNumber': _selectedValue,
+        'join': data43
       });
 
       // 이벤트를 Firebase에 추가한 후, 화면을 다시 빌드하여 새로운 이벤트를 표시
