@@ -82,8 +82,6 @@ class _BoardPageState extends State<BoardPage> {
           .doc(widget.moimID)
           .collection("boardDetail")
           .where('category', isEqualTo: category)
-
-          //.orderBy('createdTime', descending: true)
           .get();
     }
 
@@ -102,39 +100,44 @@ class _BoardPageState extends State<BoardPage> {
           String writer = userMember?['writer'] ?? '';
           String content = userMember?['content'] ?? '';
 
-          return Container(
-            decoration: BoxDecoration(
-              color: Colors.grey.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(12.0),
-            ),
-            padding: EdgeInsets.all(8.0),
-            margin: EdgeInsets.symmetric(vertical: 8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ListTile(
-                  leading: ClipOval(
-                    child: Image(
-                      image: AssetImage('assets/meeting_image.jpg'),
-                      width: 40.0,
-                      height: 40.0,
-                      fit: BoxFit.cover,
+          return GestureDetector(
+            onTap: () {
+              _onPostClicked(userMemberDatas[index]);
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.grey.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(12.0),
+              ),
+              padding: EdgeInsets.all(8.0),
+              margin: EdgeInsets.symmetric(vertical: 8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ListTile(
+                    leading: ClipOval(
+                      child: Image(
+                        image: AssetImage('assets/meeting_image.jpg'),
+                        width: 40.0,
+                        height: 40.0,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    title: Text(
+                      writer,
+                      style: TextStyle(
+                        fontSize: 16.0,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
-                  title: Text(
-                    writer,
-                    style: TextStyle(
-                      fontSize: 16.0,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  SizedBox(height: 8.0),
+                  Padding(
+                    padding: EdgeInsets.only(left: 8.0),
+                    child: Text(content),
                   ),
-                ),
-                SizedBox(height: 8.0),
-                Padding(
-                  padding: EdgeInsets.only(left: 8.0),
-                  child: Text(content),
-                ),
-              ],
+                ],
+              ),
             ),
           );
         },
@@ -192,6 +195,65 @@ class _BoardPageState extends State<BoardPage> {
             fontSize: 12.0,
             fontWeight: FontWeight.bold,
           ),
+        ),
+      ),
+    );
+  }
+
+  void _onPostClicked(DocumentSnapshot postSnapshot) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) {
+          // 새로운 페이지로 전달할 게시물 정보 설정
+          Map<String, dynamic> postData =
+              postSnapshot.data() as Map<String, dynamic>? ?? {};
+
+          return PostDetailPage(postData: postData);
+        },
+      ),
+    );
+  }
+}
+
+class PostDetailPage extends StatelessWidget {
+  final Map<String, dynamic> postData;
+
+  const PostDetailPage({Key? key, required this.postData}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('게시물 상세보기'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '작성자: ${postData['writer']}',
+              style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 8.0),
+            Divider(
+              // 추가: 구분선
+              color: Colors.grey,
+              height: 1,
+            ),
+            SizedBox(height: 8.0),
+            Text(
+              '내용:',
+              style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 8.0),
+            Text(
+              postData['content'],
+              style: TextStyle(fontSize: 16.0),
+            ),
+            // 필요한 다른 정보들을 표시하도록 추가
+          ],
         ),
       ),
     );
