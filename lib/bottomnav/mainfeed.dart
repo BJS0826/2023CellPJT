@@ -1,5 +1,4 @@
 import 'package:cellpjt/appbar/notification.dart';
-import 'package:cellpjt/bottomnav/vision.dart';
 import 'package:cellpjt/func2/aboutgroup.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -207,14 +206,7 @@ class _MainFeedPageState extends State<MainFeedPage> {
         child: const Text('셀모임'),
       ),
       leading: GestureDetector(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => VisionPage(), // 이동하고자 하는 페이지로 변경
-            ),
-          );
-        },
+        onTap: () {},
         child: Container(
           padding: EdgeInsets.only(left: 20.0, top: 20.0),
           child: Image.asset(
