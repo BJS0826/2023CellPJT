@@ -31,12 +31,14 @@ class _MeetingSchedulePageState extends State<MeetingSchedulePage> {
     user = auth.currentUser;
     _selectedDay = _focusedDay;
 
-    _getEventsFromFirebaseFromToday();
+    setState(() {
+      _getEventsFromFirebaseForTotal();
+      total = true;
+    });
   }
 
   Future<void> _getEventsFromFirebaseForTotal() async {
     _events = {};
-    DateTime today = DateTime.now();
 
     try {
       // Firebase Firestore에서 이벤트 데이터 가져오기
@@ -179,7 +181,8 @@ class _MeetingSchedulePageState extends State<MeetingSchedulePage> {
             Padding(
               padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
               child: Text(
-                DateFormat('yyyy-MM-dd').format(date), // Format date as needed
+                DateFormat('yyyy년MM-dd hh시mm분')
+                    .format(date), // Format date as needed
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
