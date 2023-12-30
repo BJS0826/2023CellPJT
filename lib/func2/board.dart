@@ -1,4 +1,5 @@
 import 'package:cellpjt/func2/board_post.dart';
+import 'package:cellpjt/func2/show_profile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
@@ -99,8 +100,11 @@ class _BoardPageState extends State<BoardPage> {
         itemBuilder: (context, index) {
           var userMember =
               userMemberDatas[index].data() as Map<String, dynamic>? ?? {};
-          String writer = userMember?['writer'] ?? '';
-          String content = userMember?['content'] ?? '';
+          String writer = userMember['writer'] ?? '';
+          String content = userMember['content'] ?? '';
+          String writerImage = userMember['writerImage'] ?? '';
+          String writerId =
+              userMember['writerId'] ?? 'kbXzvhRyxCgCxaomW2O0DZV4xnC2';
 
           return Container(
             decoration: BoxDecoration(
@@ -114,11 +118,18 @@ class _BoardPageState extends State<BoardPage> {
               children: [
                 ListTile(
                   leading: ClipOval(
-                    child: Image(
-                      image: AssetImage('assets/meeting_image.jpg'),
-                      width: 40.0,
-                      height: 40.0,
-                      fit: BoxFit.cover,
+                    child: GestureDetector(
+                      onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ShowProfile(userID: writerId),
+                          )),
+                      child: Image(
+                        image: NetworkImage(writerImage),
+                        width: 40.0,
+                        height: 40.0,
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
                   title: Text(

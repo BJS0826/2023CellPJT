@@ -5,16 +5,16 @@ import 'package:cellpjt/appbar/notification.dart';
 import 'package:cellpjt/bottomnav/editprofile.dart';
 import 'package:cellpjt/func2/aboutgroup.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
-class ProfilePage extends StatefulWidget {
+class ShowProfile extends StatefulWidget {
+  final userID;
+  const ShowProfile({super.key, required this.userID});
+
   @override
-  _ProfilePageState createState() => _ProfilePageState();
+  _ShowProfileState createState() => _ShowProfileState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
-  FirebaseAuth auth = FirebaseAuth.instance;
-  User? user;
+class _ShowProfileState extends State<ShowProfile> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   bool exercise = false;
   bool economy = false;
@@ -25,71 +25,45 @@ class _ProfilePageState extends State<ProfilePage> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    user = auth.currentUser;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          padding: EdgeInsets.only(top: 20), // 버튼 상단 간격 조절
+        ),
         title: Padding(
-          padding: const EdgeInsets.only(top: 17.0),
-          child: const Text('셀모임'),
-        ),
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 20.0, top: 20.0),
-          child: Image.asset(
-            'assets/logo.png',
-            fit: BoxFit.cover,
+          padding: EdgeInsets.only(top: 18.0, right: 20.0),
+          child: Row(
+            children: [
+              SizedBox(width: 8.0),
+              const Text('셀모임'),
+            ],
           ),
         ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(top: 18.0),
-            child: IconButton(
-              icon: Icon(Icons.search),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => GroupSearchPage(),
-                  ),
-                );
-              },
+        titleSpacing: 0, // 간격을 조절합니다
+        bottom: PreferredSize(
+          preferredSize: Size.fromHeight(20.0),
+          child: Container(
+            decoration: BoxDecoration(
+              border: Border(
+                bottom: BorderSide(
+                  color: Colors.grey.withOpacity(0.2),
+                  width: 2.0,
+                ),
+              ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.only(top: 18.0),
-            child: IconButton(
-              icon: Icon(Icons.add),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => CreateGroupPage(),
-                  ),
-                );
-              },
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 18.0),
-            child: IconButton(
-              icon: Icon(Icons.notifications_none),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => NotificationPage(),
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
+        ),
       ),
       body: FutureBuilder<DocumentSnapshot>(
-        future: _firestore.collection("user").doc(user!.uid).get(),
+        future: _firestore.collection("user").doc(widget.userID).get(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(
@@ -169,27 +143,6 @@ class _ProfilePageState extends State<ProfilePage> {
                               ],
                             ),
                           ],
-                        ),
-                        ElevatedButton(
-                          onPressed: () async {
-                            await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => EditProfilePage()),
-                            );
-                            setState(() {});
-                          },
-                          style: ElevatedButton.styleFrom(
-                            primary: Color(0xFFFF6F61),
-                            onPrimary: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15.0),
-                            ),
-                          ),
-                          child: Text(
-                            '프로필 편집',
-                            style: TextStyle(color: Colors.white),
-                          ),
                         ),
                       ],
                     ),
@@ -285,12 +238,6 @@ class _ProfilePageState extends State<ProfilePage> {
                         }),
                     SizedBox(height: 16.0),
                     // 내 정모 리스트 (슬라이드로 볼 수 있게끔)
-                    Text(
-                      '내 정모',
-                      style: TextStyle(
-                          fontSize: 20.0, fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(height: 16.0),
                   ],
                 );
               } else {
@@ -357,7 +304,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget buildInterestItem(
       String interest, String imagePath, bool choice, List interestsList) {
     return FutureBuilder(
-        future: _firestore.collection("user").doc(user!.uid).get(),
+        future: _firestore.collection("user").doc(widget.userID).get(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return Text('');
@@ -379,20 +326,6 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
               ),
               title: Text(interest),
-              // onTap: () async {
-              //   if (choice) {
-              //     interestsLists.remove(interest);
-              //   } else {
-              //     interestsLists.add(interest);
-              //   }
-
-              //   await _firestore.collection('user').doc(user!.uid).update(
-              //     {
-              //       'interests': interestsLists,
-              //     },
-              //   );
-              //   setState(() {});
-              // },
             );
           }
         });
@@ -414,7 +347,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Widget buildLocationList() {
     return FutureBuilder(
-        future: _firestore.collection("user").doc(user!.uid).get(),
+        future: _firestore.collection("user").doc(widget.userID).get(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return SizedBox();
@@ -512,43 +445,3 @@ class _ProfilePageState extends State<ProfilePage> {
             }));
   }
 }
-
-
-
-
-
-
-
-
-/////  <!== 모임 순서 시간순서대로 하는 로직 (추후 적용하기) ==> 
-///
-// ///// Firestore 쿼리 예시
-// FirebaseFirestore.instance
-//     .collection('moims')
-//     .doc('yourDocId')
-//     .collection('myMoimList')
-//     .get()
-//     .then((QuerySnapshot querySnapshot) {
-//   // Firestore로부터 데이터를 가져온 후
-//   List<Map<String, dynamic>> sortedList = [];
-
-//   querySnapshot.docs.forEach((doc) {
-//     sortedList.add({
-//       'docId': doc.id,
-//       'time': (doc.data() as Map<String, dynamic>)['time'] // 'time' 값을 가져와 sortedList에 추가
-//     });
-//   });
-
-//   // 'time' 필드를 기준으로 정렬
-//   sortedList.sort((a, b) => a['time'].compareTo(b['time']));
-
-//   // 정렬된 리스트를 출력하거나 사용할 수 있습니다.
-//   sortedList.forEach((element) {
-//     print('${element['docId']}: ${element['time']}');
-//     // 필요한 처리 수행
-//   });
-// })
-// .catchError((error) {
-//   // 오류 처리
-//   print("Error getting documents: $error");
-// });

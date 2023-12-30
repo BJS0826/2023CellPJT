@@ -40,6 +40,8 @@ class _PostFeedPageState extends State<PostFeedPage> {
     User? user = auth.currentUser;
 
     String userName = "";
+    String writerImage =
+        "https://firebasestorage.googleapis.com/v0/b/ndproject-743d6.appspot.com/o/user_images%2Flogo.png?alt=media&token=21da4c39-5b63-4a94-9558-4bd5f002fe8c";
 
     if (feedContentController.text.isNotEmpty && selectedMeeting.isNotEmpty) {
       try {
@@ -65,6 +67,7 @@ class _PostFeedPageState extends State<PostFeedPage> {
           DocumentSnapshot userDoc =
               await firestore.collection('user').doc(user!.uid).get();
           userName = userDoc.get('userName');
+          writerImage = userDoc.get('picked_image');
 
           Map<String, dynamic> me = {user.uid: userName};
 
@@ -79,7 +82,8 @@ class _PostFeedPageState extends State<PostFeedPage> {
             'feedContent': feedContentController.text,
             "feedImage": imageURL,
             "favorite": List<String>,
-            "viewNumber": 0
+            "viewNumber": 0,
+            "writerImage": writerImage
           });
 
           Navigator.pop(context);
