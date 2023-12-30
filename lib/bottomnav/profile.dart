@@ -339,23 +339,29 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Widget buildInterestList(List interestsList) {
-    return ListView(
+    return GridView(
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        childAspectRatio: 4,
+      ),
       shrinkWrap: true,
       children: [
-        buildInterestItem(
-            '운동', 'assets/category_sports.png', exercise, interestsList),
-        buildInterestItem(
-            '경제', 'assets/category_economy.png', economy, interestsList),
-        buildInterestItem('예술', 'assets/category_art.png', art, interestsList),
-        buildInterestItem(
-            '음악', 'assets/category_music.png', music, interestsList),
+        buildInterestItem('독서', 'assets/category_reading.png', interestsList),
+
+        buildInterestItem('경제', 'assets/category_economy.png', interestsList),
+        buildInterestItem('예술', 'assets/category_art.png', interestsList),
+        buildInterestItem('음악', 'assets/category_music.png', interestsList),
+        buildInterestItem('운동', 'assets/category_sports.png', interestsList),
+        buildInterestItem('직무', 'assets/category_career.png', interestsList),
+        buildInterestItem('기타', 'assets/category_free.png', interestsList),
         // ... 추가 관심사 아이템
       ],
     );
   }
 
   Widget buildInterestItem(
-      String interest, String imagePath, bool choice, List interestsList) {
+      String interest, String imagePath, List interestsList) {
+    bool choice;
     return FutureBuilder(
         future: _firestore.collection("user").doc(user!.uid).get(),
         builder: (context, snapshot) {
@@ -379,20 +385,6 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
               ),
               title: Text(interest),
-              // onTap: () async {
-              //   if (choice) {
-              //     interestsLists.remove(interest);
-              //   } else {
-              //     interestsLists.add(interest);
-              //   }
-
-              //   await _firestore.collection('user').doc(user!.uid).update(
-              //     {
-              //       'interests': interestsLists,
-              //     },
-              //   );
-              //   setState(() {});
-              // },
             );
           }
         });
@@ -403,7 +395,7 @@ class _ProfilePageState extends State<ProfilePage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '지역',
+          '참여가능지역',
           style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 8.0),

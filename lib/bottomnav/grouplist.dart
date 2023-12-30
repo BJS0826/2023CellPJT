@@ -85,39 +85,39 @@ class _GroupListPageState extends State<GroupListPage> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         SizedBox(height: 16.0),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Flexible(
-                child: Text(
-                  '추천 정모',
-                  style: TextStyle(
-                    fontSize: 20.0,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  navigateToPage(AllGroupsPage());
-                },
-                style: ElevatedButton.styleFrom(
-                  primary: Color(0xFFFF6F61),
-                  onPrimary: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15.0),
-                  ),
-                ),
-                child: Text(
-                  '전체보기',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-            ],
-          ),
-        ),
+        // Padding(
+        //   padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        //   child: Row(
+        //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        //     children: [
+        //       Flexible(
+        //         child: Text(
+        //           '추천 정모',
+        //           style: TextStyle(
+        //             fontSize: 20.0,
+        //             fontWeight: FontWeight.bold,
+        //           ),
+        //         ),
+        //       ),
+        //       ElevatedButton(
+        //         onPressed: () {
+        //           navigateToPage(AllGroupsPage());
+        //         },
+        //         style: ElevatedButton.styleFrom(
+        //           primary: Color(0xFFFF6F61),
+        //           onPrimary: Colors.white,
+        //           shape: RoundedRectangleBorder(
+        //             borderRadius: BorderRadius.circular(15.0),
+        //           ),
+        //         ),
+        //         child: Text(
+        //           '전체보기',
+        //           style: TextStyle(color: Colors.white),
+        //         ),
+        //       ),
+        //     ],
+        //   ),
+        // ),
         SizedBox(height: 16.0),
         SizedBox(
           child: Padding(

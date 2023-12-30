@@ -125,28 +125,41 @@ class _MainFeedPageState extends State<MainFeedPage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            ListTile(
-                              leading: CircleAvatar(
-                                radius: 20.0,
-                                backgroundImage: NetworkImage(moimImage),
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => AboutGroupPage(
+                                            moimID: moimData.id,
+                                          )),
+                                );
+                              },
+                              child: ListTile(
+                                leading: CircleAvatar(
+                                  radius: 20.0,
+                                  backgroundImage: NetworkImage(moimImage),
+                                ),
+                                title: Text(moimTitle),
+                                subtitle: Text(name,
+                                    style: TextStyle(color: Colors.grey)),
                               ),
-                              title: Text(moimTitle),
-                              subtitle: Text(name,
-                                  style: TextStyle(color: Colors.grey)),
                             ),
                             GestureDetector(
                                 onTap: () {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (context) => AboutGroupPage()),
+                                        builder: (context) => AboutGroupPage(
+                                              moimID: moimData.id,
+                                            )),
                                   );
                                 },
                                 child: Container(
                                   height: 180,
                                   decoration: BoxDecoration(
                                       image: DecorationImage(
-                                          fit: BoxFit.fitWidth,
+                                          fit: BoxFit.contain,
                                           image: NetworkImage(feedImage))),
                                 )),
                             Row(
