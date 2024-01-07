@@ -89,7 +89,7 @@ class _MainFeedPageState extends State<MainFeedPage> {
         itemCount: _data.length + 1,
         itemBuilder: (context, index) {
           if (index == _data.length) {
-            return _buildLoader();
+            return Center(child: _buildLoader());
           } else {
             String feedContent = _data[index]['feedContent'];
             Map<String, dynamic> preName = _data[index]['writer'];

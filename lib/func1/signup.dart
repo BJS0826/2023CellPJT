@@ -112,7 +112,11 @@ class _SignupPageState extends State<SignupPage> {
 
       if (userCredential.user != null) {
         String uid = userCredential.user!.uid;
-        List<String> myMoimList = [];
+        Map<String, dynamic> myMoimList = {};
+        List<String> interests = [];
+        String myChurch = "";
+        List<String> myLocation = [];
+        String myIntroduction = "자기소개를 채워주세요";
 
         // 이미지를 Firebase Storage에 업로드
         Reference ref = _storage.ref().child('user_images/$uid.jpg');
@@ -130,6 +134,10 @@ class _SignupPageState extends State<SignupPage> {
           'userName': _nameRegister.text,
           'picked_image': imageURL,
           'myMoimList': myMoimList,
+          'interests': interests,
+          'myChurch': myChurch,
+          'myLocation': myLocation,
+          'myIntroduction': myIntroduction
         });
 
         // 회원가입 성공 시 작업 수행

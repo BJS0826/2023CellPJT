@@ -1,4 +1,4 @@
-package com.example.cellpjt
+package bethany.project.cellmoim
 
 import io.flutter.embedding.android.FlutterActivity
 

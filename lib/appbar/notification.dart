@@ -18,6 +18,17 @@ class NotificationPage extends StatelessWidget {
         body: ListView(
           padding: EdgeInsets.all(16.0),
           children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(0, 10, 0, 30),
+              child: Text(
+                '현재 이 기능은 아직 개발 중 입니다',
+                style: TextStyle(
+                  color: Colors.blue,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
             // 첫 번째 알림
             _buildNotificationItem(
               title: '정모가 곧 시작됩니다.',
