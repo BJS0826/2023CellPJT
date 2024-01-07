@@ -70,6 +70,7 @@ class _PostFeedPageState extends State<PostFeedPage> {
           writerImage = userDoc.get('picked_image');
 
           Map<String, dynamic> me = {user.uid: userName};
+          List<String> favorite = [];
 
           await FirebaseFirestore.instance
               .collection('feed')
@@ -81,7 +82,7 @@ class _PostFeedPageState extends State<PostFeedPage> {
             'selectedMeeting': selectedMeeting,
             'feedContent': feedContentController.text,
             "feedImage": imageURL,
-            "favorite": List<String>,
+            "favorite": favorite,
             "viewNumber": 0,
             "writerImage": writerImage
           });

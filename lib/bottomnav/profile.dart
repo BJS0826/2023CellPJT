@@ -285,11 +285,12 @@ class _ProfilePageState extends State<ProfilePage> {
                         }),
                     SizedBox(height: 16.0),
                     // 내 정모 리스트 (슬라이드로 볼 수 있게끔)
-                    Text(
-                      '내 정모',
-                      style: TextStyle(
-                          fontSize: 20.0, fontWeight: FontWeight.bold),
-                    ),
+                    //
+                    // Text(
+                    //   '내 정모',
+                    //   style: TextStyle(
+                    //       fontSize: 20.0, fontWeight: FontWeight.bold),
+                    // ),
                     SizedBox(height: 16.0),
                   ],
                 );

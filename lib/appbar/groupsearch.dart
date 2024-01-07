@@ -96,6 +96,17 @@ class _GroupSearchPageState extends State<GroupSearchPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
+              padding: const EdgeInsets.fromLTRB(0, 10, 0, 30),
+              child: Text(
+                '현재 이 기능은 아직 개발 중 입니다',
+                style: TextStyle(
+                  color: Colors.blue,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            Padding(
               padding: EdgeInsets.only(bottom: 8.0),
               child: Text(
                 '검색어',

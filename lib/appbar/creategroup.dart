@@ -1,4 +1,5 @@
 import 'package:cellpjt/func1/login.dart';
+import 'package:cellpjt/func2/aboutgroup.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -112,7 +113,11 @@ class _CreateGroupPageState extends State<CreateGroupPage> {
           });
 
           print('모임이 성공적으로 추가되었습니다!');
-          Navigator.pop(context);
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => AboutGroupPage(moimID: randomeID),
+              ));
         }
       } catch (e) {
         print('모임 추가 중 오류가 발생했습니다: $e');

@@ -174,7 +174,7 @@ class _LoginPageState extends State<LoginPage> {
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) => MainFeedPage()));
+                                      builder: (context) => HomePage()));
                             }
                           } catch (e) {
                             if (context.mounted) {
